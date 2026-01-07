@@ -18,7 +18,7 @@ This architectural choice enables:
 
 - **Advanced ORM Capabilities**: The generated models utilize the [diesel-builders](https://github.com/LucaCappelletti94/diesel-builders/) crate, providing a sophisticated builder pattern, handling complex table relationships (DAGs, inheritance), and enforcing compile-time correctness for data insertion.
 - **Type Safety**: Maps SQL types to Rust types with high fidelity.
-- **SQL Relations**: SynQL builds upon the `sql_relations` crate, which provides semantic abstractions over SQL relations (like `SameAs`, `CheckConstraint`, and `Authored` traits), enabling rich introspection and modeling of database constraints.
+- **SQL Relations**: SynQL builds upon the `sql_relations` crate, which extends standard foreign key introspection with semantic "Same As" topology. It identifies complex patterns like **Vertical Same As** (inheritance-like redundancy), **Horizontal Same As** (sibling table equivalence), and **Triangular Same As** (diamond dependency consistency), allowing the generated code to enforce deeper data integrity constraints.
 
 ## Use Cases
 
