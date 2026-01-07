@@ -1,0 +1,36 @@
+[package]
+name = "synql"
+version = "0.1.0"
+edition = "2024"
+description = "Inflection is a string transformation library. It singularizes and pluralizes English words, and transforms strings from CamelCase to underscored string."
+readme = "README.md"
+homepage = "https://github.com/floating-floaties/inflection-rs"
+repository = "https://github.com/floating-floaties/inflection-rs"
+license = "GPL-3.0-only"
+keywords = ["inflection", "parameterize", "pluralize", "singularize", "titleize"]
+exclude = ["Dockerfile", "target", "docker*", "*.lock", ".*"]
+
+[dependencies]
+sql-traits.workspace = true
+sql_relations.workspace = true
+syn.workspace = true
+chrono.workspace = true
+time_requirements.workspace = true
+sqlparser.workspace = true
+proc-macro2.workspace = true
+quote.workspace = true
+cached.workspace = true
+inflection-rs.workspace = true
+strum.workspace = true
+strum_macros.workspace = true
+thiserror.workspace = true
+heck.workspace = true
+enumflags2.workspace = true
+
+[dev-dependencies]
+tempfile = "3.6"
+insta = "1.46"
+sql-rules.workspace = true
+
+[lints]
+workspace = true

@@ -1,0 +1,17 @@
+[package]
+name = "sql_relations"
+version = "0.1.0"
+edition = "2024"
+description = "Inflection is a string transformation library. It singularizes and pluralizes English words, and transforms strings from CamelCase to underscored string."
+readme = "README.md"
+homepage = "https://github.com/floating-floaties/inflection-rs"
+repository = "https://github.com/floating-floaties/inflection-rs"
+license = "GPL-3.0-only"
+keywords = ["inflection", "parameterize", "pluralize", "singularize", "titleize"]
+exclude = ["Dockerfile", "target", "docker*", "*.lock", ".*"]
+
+[dependencies]
+sql-traits.workspace = true
+
+[lints]
+workspace = true
