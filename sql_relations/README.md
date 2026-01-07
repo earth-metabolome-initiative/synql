@@ -25,31 +25,29 @@ This relies on an underlying **Extension** relationship (where the Child's Prima
 use sql_traits::prelude::*;
 use sql_relations::prelude::*;
 
-fn main() {
-    let db = ParserDB::try_from(
-        r#"
-        CREATE TABLE parent (id INT PRIMARY KEY, name TEXT, UNIQUE(id, name));
+let db = ParserDB::try_from(
+ r#"
+ CREATE TABLE parent (id INT PRIMARY KEY, name TEXT, UNIQUE(id, name));
 
-        CREATE TABLE child (
-            id INT PRIMARY KEY REFERENCES parent(id),
-            name TEXT,
-            -- This FK ensures child.name === parent.name for the same entity id
-            FOREIGN KEY (id, name) REFERENCES parent(id, name)
-        );
-        "#,
-    ).unwrap();
+ CREATE TABLE child (
+  id INT PRIMARY KEY REFERENCES parent(id),
+  name TEXT,
+  -- This FK ensures child.name === parent.name for the same entity id
+  FOREIGN KEY (id, name) REFERENCES parent(id, name)
+ );
+ "#,
+).unwrap();
 
-    let child_table = db.table(None, "child").unwrap();
-    let foreign_keys: Vec<_> = child_table.foreign_keys(&db).collect();
-    
-    // id -> parent(id) [Extension]
-    // (id, name) -> parent(id, name) [Vertical Same As]
-    let vertical_fk = foreign_keys.iter()
-        .find(|fk| fk.is_vertical_same_as(&db))
-        .expect("Should identify vertical same-as FK");
+let child_table = db.table(None, "child").unwrap();
+let foreign_keys: Vec<_> = child_table.foreign_keys(&db).collect();
 
-    assert_eq!(vertical_fk.referenced_columns(&db).count(), 2);
-}
+// id -> parent(id) [Extension]
+// (id, name) -> parent(id, name) [Vertical Same As]
+let vertical_fk = foreign_keys.iter()
+ .find(|fk| fk.is_vertical_same_as(&db))
+ .expect("Should identify vertical same-as FK");
+
+assert_eq!(vertical_fk.referenced_columns(&db).count(), 2);
 ```
 
 ```mermaid
@@ -79,35 +77,33 @@ Describes a relationship between two tables that are not in a direct extension l
 use sql_traits::prelude::*;
 use sql_relations::prelude::*;
 
-fn main() {
-    let db = ParserDB::try_from(
-        r#"
-        CREATE TABLE brother (
-            id INT PRIMARY KEY, 
-            brother_name TEXT, 
-            UNIQUE(id, brother_name)
-        );
+let db = ParserDB::try_from(
+ r#"
+ CREATE TABLE brother (
+  id INT PRIMARY KEY, 
+  brother_name TEXT, 
+  UNIQUE(id, brother_name)
+ );
 
-        CREATE TABLE child (
-            id INT PRIMARY KEY,
-            brother_id INT,
-            child_name TEXT,
-            -- This FK ensures child.child_name === brother.brother_name when linked
-            FOREIGN KEY (brother_id, child_name) REFERENCES brother(id, brother_name)
-        );
-        "#,
-    ).unwrap();
+ CREATE TABLE child (
+  id INT PRIMARY KEY,
+  brother_id INT,
+  child_name TEXT,
+  -- This FK ensures child.child_name === brother.brother_name when linked
+  FOREIGN KEY (brother_id, child_name) REFERENCES brother(id, brother_name)
+ );
+ "#,
+).unwrap();
 
-    let child_table = db.table(None, "child").unwrap();
-    let foreign_keys: Vec<_> = child_table.foreign_keys(&db).collect();
+let child_table = db.table(None, "child").unwrap();
+let foreign_keys: Vec<_> = child_table.foreign_keys(&db).collect();
 
-    let horizontal_fk = foreign_keys.iter()
-        .find(|fk| fk.is_horizontal_same_as(&db))
-        .expect("Should identify horizontal same-as FK");
-    
-    // (brother_id, child_name) -> brother(id, brother_name)
-    assert_eq!(horizontal_fk.referenced_columns(&db).count(), 2);
-}
+let horizontal_fk = foreign_keys.iter()
+ .find(|fk| fk.is_horizontal_same_as(&db))
+ .expect("Should identify horizontal same-as FK");
+
+// (brother_id, child_name) -> brother(id, brother_name)
+assert_eq!(horizontal_fk.referenced_columns(&db).count(), 2);
 ```
 
 ```mermaid
@@ -145,41 +141,39 @@ This topology creates a "triangular" constraint where the path from `A` to `C` c
 use sql_traits::prelude::*;
 use sql_relations::prelude::*;
 
-fn main() {
-    let db = ParserDB::try_from(
-        r#"
-        CREATE TABLE grandparent (id INT PRIMARY KEY);
-        CREATE TABLE parent (id INT PRIMARY KEY REFERENCES grandparent(id));
+let db = ParserDB::try_from(
+ r#"
+ CREATE TABLE grandparent (id INT PRIMARY KEY);
+ CREATE TABLE parent (id INT PRIMARY KEY REFERENCES grandparent(id));
 
-        -- Sibling also points to grandparent
-        CREATE TABLE sibling (
-            id INT PRIMARY KEY, 
-            grandparent_id INT REFERENCES grandparent(id), 
-            UNIQUE(id, grandparent_id)
-        );
+ -- Sibling also points to grandparent
+ CREATE TABLE sibling (
+  id INT PRIMARY KEY, 
+  grandparent_id INT REFERENCES grandparent(id), 
+  UNIQUE(id, grandparent_id)
+ );
 
-        CREATE TABLE child (
-            id INT PRIMARY KEY REFERENCES parent(id), -- Path 1 to Top
-            sibling_id INT REFERENCES sibling(id),
-            
-            -- Triangular Constraint:
-            -- Ensures that the 'sibling' linked to this 'child' 
-            -- points to the SAME 'grandparent' as this 'child'.
-            FOREIGN KEY (sibling_id, id) REFERENCES sibling(id, grandparent_id)
-        );
-        "#,
-    ).unwrap();
+ CREATE TABLE child (
+  id INT PRIMARY KEY REFERENCES parent(id), -- Path 1 to Top
+  sibling_id INT REFERENCES sibling(id),
+  
+  -- Triangular Constraint:
+  -- Ensures that the 'sibling' linked to this 'child' 
+  -- points to the SAME 'grandparent' as this 'child'.
+  FOREIGN KEY (sibling_id, id) REFERENCES sibling(id, grandparent_id)
+ );
+ "#,
+).unwrap();
 
-    let child_table = db.table(None, "child").unwrap();
-    let foreign_keys: Vec<_> = child_table.foreign_keys(&db).collect();
+let child_table = db.table(None, "child").unwrap();
+let foreign_keys: Vec<_> = child_table.foreign_keys(&db).collect();
 
-    let triangular_fk = foreign_keys.iter()
-        .find(|fk| fk.is_triangular_same_as(&db))
-        .expect("Should identify triangular same-as FK");
+let triangular_fk = foreign_keys.iter()
+ .find(|fk| fk.is_triangular_same_as(&db))
+ .expect("Should identify triangular same-as FK");
 
-    // This checks if the triangularity is mandatory (enforced by constraint)
-    assert!(triangular_fk.triangular_same_as(&db).unwrap().is_mandatory());
-}
+// This checks if the triangularity is mandatory (enforced by constraint)
+assert!(triangular_fk.triangular_same_as(&db).unwrap().is_mandatory());
 ```
 
 ```mermaid
