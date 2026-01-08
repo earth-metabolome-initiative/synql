@@ -92,6 +92,10 @@ impl<DB: SynQLDatabaseLike> SynQL<'_, DB> {
             })
         };
 
+        let bool_count: usize = table.columns(self.database).filter(|column| column.external_postgres_type(workspace, self.database).map(|d| d.is_bool()).unwrap_or(false)).count();
+        // todo: check the bool threshold
+        let excessive_bool_decorator = (bool_count > 4).then(||quote! {#[allow(clippy::struct_excessive_bools)]});
+
         let fields = table.generate_struct_fields(workspace, self.database)?;
         let unique_indices = table.unique_indices_macros(self.database);
         let foreign_keys = table.foreign_keys_macros(self.database, workspace);
@@ -105,6 +109,7 @@ impl<DB: SynQLDatabaseLike> SynQL<'_, DB> {
             #[derive(serde::Serialize, serde::Deserialize)]
             #[derive(diesel::Queryable, diesel::Selectable, diesel::Identifiable, diesel_builders::prelude::TableModel)]
             #[doc=#struct_documentation]
+            #excessive_bool_decorator
             #ancestor_decorator
             #error_decorator
             #primary_key_decorator
