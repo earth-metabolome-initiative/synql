@@ -12,10 +12,9 @@ fn test_ancestral_table_list_default_decorator() -> Result<(), Box<dyn std::erro
     CREATE TABLE valid_list (name TEXT PRIMARY KEY);
     CREATE TABLE root (id INT PRIMARY KEY, list_name TEXT, FOREIGN KEY(list_name) REFERENCES valid_list(name));
     CREATE TABLE child (
-        id INT PRIMARY KEY, 
+        id INT PRIMARY KEY,
         FOREIGN KEY(id) REFERENCES root(id)
     );
-    
     CREATE TABLE root_no_list (id INT PRIMARY KEY);
     CREATE TABLE child_no_list (id INT PRIMARY KEY REFERENCES root_no_list(id));
 "

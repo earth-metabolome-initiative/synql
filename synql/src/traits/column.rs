@@ -368,10 +368,7 @@ pub trait ColumnSynLike: ColumnLike {
             candidate if candidate.starts_with("NULL::") => {
                 return Ok(quote! {});
             }
-            candidate
-                if external_postgres_type.is_string()
-                    && candidate.ends_with("::character varying") =>
-            {
+            candidate if external_postgres_type.is_string() => {
                 let stripped_value =
                     candidate.trim_end_matches("::character varying").trim_matches('\'');
                 quote! { #stripped_value }
