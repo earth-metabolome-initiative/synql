@@ -8,3 +8,5 @@ pub use same_as::{
     TriangularSameAsTableLike, VerticalSameAsColumnLike, VerticalSameAsForeignKeyLike,
     VerticalSameAsTableLike,
 };
+mod table_list_like;
+pub use table_list_like::TableListLike;
