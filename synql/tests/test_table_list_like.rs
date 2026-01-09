@@ -8,7 +8,7 @@ use synql::prelude::*;
 #[test]
 fn test_ancestral_table_list_default_decorator() -> Result<(), Box<dyn std::error::Error>> {
     let db = ParserDB::try_from(
-        r#"
+        "
     CREATE TABLE valid_list (name TEXT PRIMARY KEY);
     CREATE TABLE root (id INT PRIMARY KEY, list_name TEXT, FOREIGN KEY(list_name) REFERENCES valid_list(name));
     CREATE TABLE child (
@@ -18,7 +18,7 @@ fn test_ancestral_table_list_default_decorator() -> Result<(), Box<dyn std::erro
     
     CREATE TABLE root_no_list (id INT PRIMARY KEY);
     CREATE TABLE child_no_list (id INT PRIMARY KEY REFERENCES root_no_list(id));
-"#,
+"
     )?;
 
     let temp_dir = tempfile::tempdir().expect("Unable to create temporary directory");
@@ -48,8 +48,7 @@ fn test_ancestral_table_list_default_decorator() -> Result<(), Box<dyn std::erro
     let expected = "default(synql_table_list_root::root::list_name,\"child\")";
     assert!(
         normalized.contains(expected),
-        "Should contain default decorator for table list. Found:\n{}",
-        content
+        "Should contain default decorator for table list. Found:\n{content}"
     );
 
     // Case 2: Child No List
@@ -68,8 +67,7 @@ fn test_ancestral_table_list_default_decorator() -> Result<(), Box<dyn std::erro
     let unexpected = "default(";
     assert!(
         !normalized_no_list.contains(unexpected),
-        "Should NOT contain default decorator. Found:\n{}",
-        content_no_list
+        "Should NOT contain default decorator. Found:\n{content_no_list}",
     );
 
     Ok(())

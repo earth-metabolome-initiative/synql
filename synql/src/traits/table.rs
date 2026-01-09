@@ -8,10 +8,11 @@ use std::path::PathBuf;
 
 use heck::{ToSnakeCase, ToUpperCamelCase};
 use inflection_rs::inflection::singularize;
+use quote::quote;
 use sql_relations::{
     prelude::UniqueIndexLike,
     traits::{
-        HorizontalSameAsForeignKeyLike, TriangularSameAsForeignKeyLike,
+        HorizontalSameAsForeignKeyLike, TableListLike, TriangularSameAsForeignKeyLike,
         VerticalSameAsForeignKeyLike,
     },
 };
@@ -377,6 +378,36 @@ where
     }
 
     /// Generates the `fk!` macro invocations for all foreign keys of this table
+    /// Returns the decorators for ancestral table lists.
+    ///
+    /// # Arguments
+    ///
+    /// * `database` - The database where the table is defined.
+    /// * `workspace` - The workspace where the table is defined.
+    fn ancestral_table_list_decorator(
+        &self,
+        database: &Self::DB,
+        workspace: &Workspace,
+    ) -> Vec<proc_macro2::TokenStream> {
+        if let Some(table_root) = self.extension_root_table(database) {
+            let current_table_name = self.table_name();
+            let root_table_ident = table_root.table_ident();
+            let root_table_crate = table_root.crate_ident(workspace);
+            table_root
+                .columns_referring_to_table_lists(database)
+                .map(|col| {
+                    let col_ident = col.column_snake_ident();
+                    quote! {
+                        #[table_model(default(#root_table_crate::#root_table_ident::#col_ident, #current_table_name))]
+                    }
+                })
+                .collect::<Vec<_>>()
+        } else {
+            Vec::new()
+        }
+    }
+
+    /// Returns the macros for the foreign keys of this table, excluding those
     /// which are not already handled by same-as relations.
     ///
     /// # Arguments
