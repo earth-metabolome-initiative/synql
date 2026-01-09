@@ -10,11 +10,7 @@ use sqlparser::ast::{BinaryOperator, Expr};
 /// * `expr` - The expression to split.
 pub(super) fn sub_expressions(expr: &Expr) -> Vec<&Expr> {
     match expr {
-        Expr::BinaryOp {
-            left,
-            op: BinaryOperator::And,
-            right,
-        } => {
+        Expr::BinaryOp { left, op: BinaryOperator::And, right } => {
             let mut expressions = sub_expressions(left);
             expressions.extend(sub_expressions(right));
             expressions

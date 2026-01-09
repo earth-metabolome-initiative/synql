@@ -53,8 +53,7 @@ where
     where
         Self: 'db,
     {
-        self.foreign_keys(database)
-            .filter(|fk| fk.is_horizontal_same_as(database))
+        self.foreign_keys(database).filter(|fk| fk.is_horizontal_same_as(database))
     }
 
     /// Returns whether the table has any horizontal same-as foreign keys.
@@ -90,9 +89,7 @@ where
     /// # }
     /// ```
     fn has_horizontal_same_as(&self, database: &Self::DB) -> bool {
-        self.horizontal_same_as_foreign_keys(database)
-            .next()
-            .is_some()
+        self.horizontal_same_as_foreign_keys(database).next().is_some()
     }
 }
 

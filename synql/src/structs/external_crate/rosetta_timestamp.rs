@@ -11,10 +11,7 @@ impl ExternalCrate {
     pub fn rosetta_timestamp() -> ExternalCrate {
         ExternalCrate::new("rosetta_timestamp")
             .unwrap()
-            .git(
-                "https://github.com/earth-metabolome-initiative/emi-monorepo",
-                "postgres-crate",
-            )
+            .git("https://github.com/earth-metabolome-initiative/emi-monorepo", "postgres-crate")
             .features(["diesel", "serde"])
             .types([ExternalType::new(
                 syn::parse_quote!(::rosetta_timestamp::diesel_impls::TimestampUTC),

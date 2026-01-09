@@ -59,10 +59,8 @@ pub trait SameAsIndexLike: UniqueIndexLike {
 
         // We expect that all of the columns in the primary key of the table are also in
         // the index.
-        let primary_key_columns = self
-            .table(database)
-            .primary_key_columns(database)
-            .collect::<Vec<_>>();
+        let primary_key_columns =
+            self.table(database).primary_key_columns(database).collect::<Vec<_>>();
 
         if columns.len() <= primary_key_columns.len() {
             return false;
@@ -70,9 +68,7 @@ pub trait SameAsIndexLike: UniqueIndexLike {
 
         // If any of the primary key columns are not in the index, it cannot be a
         // same-as index
-        primary_key_columns
-            .iter()
-            .all(|pk_col| columns.contains(pk_col))
+        primary_key_columns.iter().all(|pk_col| columns.contains(pk_col))
     }
 }
 

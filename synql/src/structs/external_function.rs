@@ -17,10 +17,7 @@ impl ExternalFunction {
     /// Creates a new `ExternalFunction`.
     #[must_use]
     pub fn new(name: &str, path: syn::Path) -> Self {
-        Self {
-            name: name.to_string(),
-            path,
-        }
+        Self { name: name.to_string(), path }
     }
 
     /// Returns the name of the external function.

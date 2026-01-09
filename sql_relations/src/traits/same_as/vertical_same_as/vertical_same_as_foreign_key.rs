@@ -112,10 +112,8 @@ where
     fn vertical_same_as_column_pair<'db>(
         &'db self,
         database: &'db Self::DB,
-    ) -> Option<(
-        &'db <Self::DB as DatabaseLike>::Column,
-        &'db <Self::DB as DatabaseLike>::Column,
-    )> {
+    ) -> Option<(&'db <Self::DB as DatabaseLike>::Column, &'db <Self::DB as DatabaseLike>::Column)>
+    {
         if !self.is_vertical_same_as(database) {
             return None;
         }

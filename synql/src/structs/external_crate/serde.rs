@@ -8,10 +8,6 @@ impl ExternalCrate {
     /// crate.
     #[must_use]
     pub fn serde() -> ExternalCrate {
-        ExternalCrate::new("serde")
-            .unwrap()
-            .version("1.0")
-            .features(["derive"])
-            .into()
+        ExternalCrate::new("serde").unwrap().version("1.0").features(["derive"]).into()
     }
 }

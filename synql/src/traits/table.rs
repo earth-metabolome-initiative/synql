@@ -51,10 +51,7 @@ where
     /// * `workspace` - The workspace where the crate is defined.
     #[must_use]
     fn crate_ident(&self, workspace: &Workspace) -> Ident {
-        Ident::new(
-            &self.crate_name(workspace).replace('-', "_"),
-            proc_macro2::Span::call_site(),
-        )
+        Ident::new(&self.crate_name(workspace).replace('-', "_"), proc_macro2::Span::call_site())
     }
 
     /// Returns the absolute path of the crate associated with this table.
@@ -64,10 +61,7 @@ where
     /// * `workspace` - The workspace where the crate is defined.
     #[must_use]
     fn crate_absolute_path(&self, workspace: &Workspace) -> PathBuf {
-        workspace
-            .path()
-            .join(workspace.crate_base_path())
-            .join(self.crate_name(workspace))
+        workspace.path().join(workspace.crate_base_path()).join(self.crate_name(workspace))
     }
 
     /// Returns the relative path of the crate associated with this table.
@@ -292,8 +286,7 @@ where
         &'db self,
         database: &'db Self::DB,
     ) -> impl Iterator<Item = Ident> + 'db {
-        self.primary_key_columns(database)
-            .map(ColumnSynLike::column_snake_ident)
+        self.primary_key_columns(database).map(ColumnSynLike::column_snake_ident)
     }
 
     /// Returns the sorted unique external crates required by this table,
@@ -329,10 +322,7 @@ where
     fn supported_core_derives(&self, database: &Self::DB, workspace: &Workspace) -> Vec<syn::Path> {
         let mut derives = Vec::new();
         for core_trait in Trait::iter() {
-            if self
-                .columns(database)
-                .all(|col| col.supports(core_trait, workspace, database))
-            {
+            if self.columns(database).all(|col| col.supports(core_trait, workspace, database)) {
                 derives.push(core_trait.path());
             }
         }

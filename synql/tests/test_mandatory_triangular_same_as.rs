@@ -30,10 +30,7 @@ fn test_mandatory_triangular_same_as() -> Result<(), Box<dyn std::error::Error>>
     // Construct the expected path to the generated file
     // The crate name is constructed from the workspace name and table name
     let child_crate_name = "synql-mandatory-triangular-child";
-    let child_rs_path = workspace_path
-        .join(child_crate_name)
-        .join("src")
-        .join("lib.rs");
+    let child_rs_path = workspace_path.join(child_crate_name).join("src").join("lib.rs");
 
     let content = std::fs::read_to_string(&child_rs_path)
         .unwrap_or_else(|e| panic!("Could not read file at {child_rs_path:?}: {e}"));

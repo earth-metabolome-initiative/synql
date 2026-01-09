@@ -5,6 +5,7 @@
 
 use std::borrow::Borrow;
 
+use heck::{ToSnakeCase, ToUpperCamelCase};
 use quote::{ToTokens, quote};
 use sql_relations::traits::{
     HorizontalSameAsColumnLike, TriangularSameAsColumnLike, TriangularSameAsForeignKeyLike,
@@ -18,7 +19,6 @@ use crate::{
     traits::{CheckConstraintSynLike, TableSynLike},
     utils::{is_reserved_diesel_keyword, is_reserved_rust_word},
 };
-use heck::{ToSnakeCase, ToUpperCamelCase};
 
 /// Trait implemented by types that represent SQL columns and can be used to
 /// generate Rust code for them.
@@ -253,14 +253,10 @@ pub trait ColumnSynLike: ColumnLike {
     ) -> Vec<proc_macro2::TokenStream> {
         let mut horizontal_same_as_decorators = vec![];
         for same_as in self.horizontal_same_as_foreign_keys(database) {
-            let host_columns = same_as
-                .host_columns(database)
-                .map(Borrow::borrow)
-                .collect::<Vec<&Self>>();
-            let referenced_columns = same_as
-                .referenced_columns(database)
-                .map(Borrow::borrow)
-                .collect::<Vec<&Self>>();
+            let host_columns =
+                same_as.host_columns(database).map(Borrow::borrow).collect::<Vec<&Self>>();
+            let referenced_columns =
+                same_as.referenced_columns(database).map(Borrow::borrow).collect::<Vec<&Self>>();
 
             let [key, other] = host_columns.as_slice() else {
                 unimplemented!(
@@ -268,11 +264,7 @@ pub trait ColumnSynLike: ColumnLike {
                     same_as.host_table(database).table_name(),
                     same_as.referenced_table(database).table_name(),
                     host_columns.len(),
-                    host_columns
-                        .iter()
-                        .map(|col| col.column_name())
-                        .collect::<Vec<_>>()
-                        .join(", ")
+                    host_columns.iter().map(|col| col.column_name()).collect::<Vec<_>>().join(", ")
                 );
             };
             let [_foreign_pk, referenced_column] = referenced_columns.as_slice() else {
@@ -380,9 +372,8 @@ pub trait ColumnSynLike: ColumnLike {
                 if external_postgres_type.is_string()
                     && candidate.ends_with("::character varying") =>
             {
-                let stripped_value = candidate
-                    .trim_end_matches("::character varying")
-                    .trim_matches('\'');
+                let stripped_value =
+                    candidate.trim_end_matches("::character varying").trim_matches('\'');
                 quote! { #stripped_value }
             }
             "gen_random_uuid()" if external_postgres_type.is_uuid() => {
@@ -405,10 +396,7 @@ pub trait ColumnSynLike: ColumnLike {
                         self.column_name(),
                         self.table(database).table_name(),
                         self.data_type(database),
-                        external_postgres_type
-                            .rust_type()
-                            .to_token_stream()
-                            .to_string(),
+                        external_postgres_type.rust_type().to_token_stream().to_string(),
                         external_postgres_type.crate_name(),
                     );
                 };
@@ -492,12 +480,13 @@ pub trait ColumnSynLike: ColumnLike {
     ) -> Result<proc_macro2::TokenStream, crate::Error> {
         let table_ident = self.table(database).table_snake_ident();
         let column_ident = self.column_snake_ident();
-        let external_postgres_type = self
-            .external_postgres_type(workspace, database)
-            .ok_or_else(|| crate::Error::ColumnTypeNotFound {
-                table_name: self.table(database).table_name().to_string(),
-                column_name: self.column_name().to_string(),
-                sql_type: self.data_type(database).to_string(),
+        let external_postgres_type =
+            self.external_postgres_type(workspace, database).ok_or_else(|| {
+                crate::Error::ColumnTypeNotFound {
+                    table_name: self.table(database).table_name().to_string(),
+                    column_name: self.column_name().to_string(),
+                    sql_type: self.data_type(database).to_string(),
+                }
             })?;
         let rust_type = external_postgres_type.rust_type();
 
@@ -575,12 +564,13 @@ pub trait ColumnSynLike: ColumnLike {
             (None, self.column_snake_ident())
         };
 
-        let external_postgres_type = self
-            .external_postgres_type(workspace, database)
-            .ok_or_else(|| crate::Error::ColumnTypeNotFound {
-                table_name: self.table(database).table_name().to_string(),
-                column_name: self.column_name().to_string(),
-                sql_type: self.data_type(database).to_string(),
+        let external_postgres_type =
+            self.external_postgres_type(workspace, database).ok_or_else(|| {
+                crate::Error::ColumnTypeNotFound {
+                    table_name: self.table(database).table_name().to_string(),
+                    column_name: self.column_name().to_string(),
+                    sql_type: self.data_type(database).to_string(),
+                }
             })?;
         let documentation = self.column_doc(database).map_or_else(
             || {
@@ -621,9 +611,7 @@ pub trait ColumnSynLike: ColumnLike {
 
         // If the column has no check constraints, we can mark it as infallible
         let infallible_decorator = if !self.has_non_tautological_check_constraints(database)
-            && self
-                .table(database)
-                .has_non_tautological_check_constraints(database)
+            && self.table(database).has_non_tautological_check_constraints(database)
             && !(self.is_primary_key(database)
                 && self.table(database).has_surrogate_primary_key(database))
         {

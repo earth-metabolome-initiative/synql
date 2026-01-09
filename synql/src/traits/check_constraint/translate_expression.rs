@@ -59,36 +59,35 @@ where
         contextual_columns: &'workspace [&'db DB::Column],
         database: &'db DB,
     ) -> Self {
-        Self {
-            check_constraint,
-            workspace,
-            contextual_columns,
-            database,
-        }
+        Self { check_constraint, workspace, contextual_columns, database }
     }
 
     /// Maps the provided expression to a validation error, when applicable.
     fn map_expr_to_validation_error(&self, expr: &Expr) -> Option<TokenStream> {
         match expr {
-            Expr::BinaryOp { left, right, op } => match (left.as_ref(), right.as_ref()) {
-                (
-                    Expr::Identifier(Ident { value: ident, .. }),
-                    Expr::Value(ValueWithSpan { value, .. }),
-                ) => Some(self.map_expr_to_single_field_error(ident, value, op)),
-                (
-                    Expr::Value(ValueWithSpan { value, .. }),
-                    Expr::Identifier(Ident { value: ident, .. }),
-                ) => Some(self.map_expr_to_single_field_error(ident, value, &invert_operator(op))),
-                (
-                    Expr::Identifier(Ident {
-                        value: left_ident, ..
-                    }),
-                    Expr::Identifier(Ident {
-                        value: right_ident, ..
-                    }),
-                ) => Some(self.map_expr_to_double_field_error(left_ident, right_ident, op)),
-                _ => None,
-            },
+            Expr::BinaryOp { left, right, op } => {
+                match (left.as_ref(), right.as_ref()) {
+                    (
+                        Expr::Identifier(Ident { value: ident, .. }),
+                        Expr::Value(ValueWithSpan { value, .. }),
+                    ) => Some(self.map_expr_to_single_field_error(ident, value, op)),
+                    (
+                        Expr::Value(ValueWithSpan { value, .. }),
+                        Expr::Identifier(Ident { value: ident, .. }),
+                    ) => {
+                        Some(self.map_expr_to_single_field_error(
+                            ident,
+                            value,
+                            &invert_operator(op),
+                        ))
+                    }
+                    (
+                        Expr::Identifier(Ident { value: left_ident, .. }),
+                        Expr::Identifier(Ident { value: right_ident, .. }),
+                    ) => Some(self.map_expr_to_double_field_error(left_ident, right_ident, op)),
+                    _ => None,
+                }
+            }
             _ => None,
         }
     }
@@ -109,36 +108,38 @@ where
         let left_column_ident = left_column.column_snake_ident();
         let right_column_ident = right_column.column_snake_ident();
         let validation_error = quote! { validation_errors::prelude::ValidationError };
-        let compare_op = |op: TokenStream| match (
-            left_column.is_nullable(self.database) && !self.is_contextual_column(left_column),
-            right_column.is_nullable(self.database) && !self.is_contextual_column(right_column),
-        ) {
-            (true, true) => {
-                quote! {
-                    #left_column_ident.as_ref().is_some_and(|#left_column_ident|
+        let compare_op = |op: TokenStream| {
+            match (
+                left_column.is_nullable(self.database) && !self.is_contextual_column(left_column),
+                right_column.is_nullable(self.database) && !self.is_contextual_column(right_column),
+            ) {
+                (true, true) => {
+                    quote! {
+                        #left_column_ident.as_ref().is_some_and(|#left_column_ident|
+                            #right_column_ident.as_ref().is_some_and(|#right_column_ident|
+                                #left_column_ident #op #right_column_ident
+                            )
+                        )
+                    }
+                }
+                (true, false) => {
+                    quote! {
+                        #left_column_ident.as_ref().is_some_and(|#left_column_ident|
+                            #left_column_ident #op #right_column_ident
+                        )
+                    }
+                }
+                (false, true) => {
+                    quote! {
                         #right_column_ident.as_ref().is_some_and(|#right_column_ident|
                             #left_column_ident #op #right_column_ident
                         )
-                    )
+                    }
                 }
-            }
-            (true, false) => {
-                quote! {
-                    #left_column_ident.as_ref().is_some_and(|#left_column_ident|
+                (false, false) => {
+                    quote! {
                         #left_column_ident #op #right_column_ident
-                    )
-                }
-            }
-            (false, true) => {
-                quote! {
-                    #right_column_ident.as_ref().is_some_and(|#right_column_ident|
-                        #left_column_ident #op #right_column_ident
-                    )
-                }
-            }
-            (false, false) => {
-                quote! {
-                    #left_column_ident #op #right_column_ident
+                    }
                 }
             }
         };
@@ -294,8 +295,8 @@ where
     ///
     /// # Panics
     ///
-    /// * If the function does not exist, which should not happen as
-    ///   it would mean that the provided SQL defining the database is invalid.
+    /// * If the function does not exist, which should not happen as it would
+    ///   mean that the provided SQL defining the database is invalid.
     fn function(&self, name: &str) -> &DB::Function {
         self.check_constraint
             .function(self.database, name)
@@ -310,18 +311,16 @@ where
     ///
     /// # Panics
     ///
-    /// * If the column does not exist, which should not happen as
-    ///   it would mean that the provided SQL defining the database is invalid.
+    /// * If the column does not exist, which should not happen as it would mean
+    ///   that the provided SQL defining the database is invalid.
     fn column(&self, name: &str) -> &DB::Column {
-        self.check_constraint
-            .column(self.database, name)
-            .unwrap_or_else(|| {
-                panic!(
-                    "Column `{}` not found for check constraint from table `{}`.",
-                    name,
-                    self.table().table_name()
-                )
-            })
+        self.check_constraint.column(self.database, name).unwrap_or_else(|| {
+            panic!(
+                "Column `{}` not found for check constraint from table `{}`.",
+                name,
+                self.table().table_name()
+            )
+        })
     }
 
     /// Translates the provided function argument to a
@@ -442,18 +441,14 @@ where
             .argument_types(self.workspace, self.database)
             .map(|arg_type| {
                 arg_type.unwrap_or_else(|| {
-                    panic!(
-                        "Failed to get type for argument of function `{}`",
-                        function.name()
-                    )
+                    panic!("Failed to get type for argument of function `{}`", function.name())
                 })
             })
             .collect::<Vec<ExternalTypeRef>>();
 
         let (args, scoped_columns) = self.parse_function_arguments(args, &argument_types);
-        let function_ref: ExternalFunctionRef = function
-            .external_function_ref(self.workspace)
-            .unwrap_or_else(|| {
+        let function_ref: ExternalFunctionRef =
+            function.external_function_ref(self.workspace).unwrap_or_else(|| {
                 panic!(
                     "The function `{}` should have an external function reference",
                     function.name()
@@ -511,9 +506,8 @@ where
         column: &DB::Column,
         value: &Value,
     ) -> (proc_macro2::TokenStream, ExternalTypeRef<'workspace>) {
-        let column_type = column
-            .external_postgres_type(self.workspace, self.database)
-            .unwrap_or_else(|| {
+        let column_type =
+            column.external_postgres_type(self.workspace, self.database).unwrap_or_else(|| {
                 panic!(
                     "Failed to get type for column `{}.{}` ({})",
                     column.table(self.database).table_name(),
@@ -530,8 +524,7 @@ where
     /// # Arguments
     ///
     /// * `value` - The [`Value`] to parse
-    /// * `type_hint` - The [`ExternalTypeRef`] of the
-    ///   value
+    /// * `type_hint` - The [`ExternalTypeRef`] of the value
     ///
     /// # Panics
     ///
@@ -543,15 +536,17 @@ where
     ) -> (proc_macro2::TokenStream, ExternalTypeRef<'workspace>) {
         match value {
             Value::Boolean(value) => (quote! { #value }, self.workspace.bool()),
-            Value::Number(value, _) => match type_hint {
-                Some(type_hint) => (type_hint.cast(value).unwrap(), type_hint),
-                None => {
-                    unimplemented!(
-                        "Number without type hint not supported: {:?}",
-                        self.check_constraint
-                    );
+            Value::Number(value, _) => {
+                match type_hint {
+                    Some(type_hint) => (type_hint.cast(value).unwrap(), type_hint),
+                    None => {
+                        unimplemented!(
+                            "Number without type hint not supported: {:?}",
+                            self.check_constraint
+                        );
+                    }
                 }
-            },
+            }
             Value::SingleQuotedString(value) => (quote! { #value }, self.workspace.string()),
             other => {
                 unimplemented!("Unsupported value: {:?}", other);
@@ -564,15 +559,12 @@ where
     ///
     /// # Arguments
     ///
-    /// * `value` - The [`ValueWithSpan`] to
-    ///   parse
-    /// * `type_hint` - The [`ExternalTypeRef`] of the
-    ///   value
+    /// * `value` - The [`ValueWithSpan`] to parse
+    /// * `type_hint` - The [`ExternalTypeRef`] of the value
     ///
     /// # Panics
     ///
-    /// * If the provided [`ValueWithSpan`] is
-    ///   not supported
+    /// * If the provided [`ValueWithSpan`] is not supported
     fn parse_value_with_span(
         &self,
         value: &sqlparser::ast::ValueWithSpan,
@@ -607,22 +599,13 @@ where
         &self,
         expr: &Expr,
         type_hint: Option<ExternalTypeRef<'workspace>>,
-    ) -> (
-        TokenStream,
-        Vec<&'_ DB::Column>,
-        Option<ExternalTypeRef<'workspace>>,
-    ) {
+    ) -> (TokenStream, Vec<&'_ DB::Column>, Option<ExternalTypeRef<'workspace>>) {
         match expr {
             Expr::Function(function) => {
                 let token_stream = self.parse_function(function);
                 (token_stream, Vec::new(), None)
             }
-            Expr::Cast {
-                kind,
-                expr,
-                data_type: _,
-                format,
-            } => {
+            Expr::Cast { kind, expr, data_type: _, format } => {
                 verify_cast_kind(kind);
                 if format.is_some() {
                     unimplemented!("Format not supported");
@@ -652,127 +635,90 @@ where
                     ),
                 )
             }
-            Expr::BinaryOp { left, op, right } => match op {
-                BinaryOperator::And => {
-                    let (left, left_scoped_columns, left_returning_type) =
-                        self.inner_parse(left, None);
-                    let (right, right_scoped_columns, right_returning_type) =
-                        self.inner_parse(right, None);
-                    if !left_scoped_columns.is_empty() || !right_scoped_columns.is_empty() {
-                        unimplemented!("Scoped columns not supported");
+            Expr::BinaryOp { left, op, right } => {
+                match op {
+                    BinaryOperator::And => {
+                        let (left, left_scoped_columns, left_returning_type) =
+                            self.inner_parse(left, None);
+                        let (right, right_scoped_columns, right_returning_type) =
+                            self.inner_parse(right, None);
+                        if !left_scoped_columns.is_empty() || !right_scoped_columns.is_empty() {
+                            unimplemented!("Scoped columns not supported");
+                        }
+                        let left_returning_type =
+                            left_returning_type.expect("Left side of AND must have a type");
+                        let right_returning_type =
+                            right_returning_type.expect("Right side of AND must have a type");
+                        if left_returning_type.is_bool() && right_returning_type.is_bool() {
+                            (
+                                match (left.to_string().as_str(), right.to_string().as_str()) {
+                                    ("true", "true") => quote! { true },
+                                    ("false", _) | (_, "false") => quote! { false },
+                                    ("true", _) => quote! { #right },
+                                    (_, "true") => quote! { #left },
+                                    (_, _) => quote! { #left && #right },
+                                },
+                                Vec::new(),
+                                Some(self.workspace.bool()),
+                            )
+                        } else {
+                            unimplemented!("Unsupported binary operation");
+                        }
                     }
-                    let left_returning_type =
-                        left_returning_type.expect("Left side of AND must have a type");
-                    let right_returning_type =
-                        right_returning_type.expect("Right side of AND must have a type");
-                    if left_returning_type.is_bool() && right_returning_type.is_bool() {
-                        (
-                            match (left.to_string().as_str(), right.to_string().as_str()) {
-                                ("true", "true") => quote! { true },
-                                ("false", _) | (_, "false") => quote! { false },
-                                ("true", _) => quote! { #right },
-                                (_, "true") => quote! { #left },
-                                (_, _) => quote! { #left && #right },
-                            },
-                            Vec::new(),
-                            Some(self.workspace.bool()),
-                        )
-                    } else {
-                        unimplemented!("Unsupported binary operation");
+                    BinaryOperator::Or => {
+                        let (left, left_scoped_columns, left_returning_type) =
+                            self.inner_parse(left, None);
+                        let (right, right_scoped_columns, right_returning_type) =
+                            self.inner_parse(right, None);
+                        if !left_scoped_columns.is_empty() || !right_scoped_columns.is_empty() {
+                            unimplemented!("Scoped columns not supported");
+                        }
+                        let left_returning_type =
+                            left_returning_type.expect("Left side of AND must have a type");
+                        let right_returning_type =
+                            right_returning_type.expect("Right side of AND must have a type");
+                        if left_returning_type.is_bool() && right_returning_type.is_bool() {
+                            (
+                                match (left.to_string().as_str(), right.to_string().as_str()) {
+                                    ("false", "false") => quote! { false },
+                                    ("true", _) | (_, "true") => quote! { true },
+                                    ("false", _) => quote! { #right },
+                                    (_, "false") => quote! { #left },
+                                    (_, _) => quote! { #left || #right },
+                                },
+                                Vec::new(),
+                                Some(self.workspace.bool()),
+                            )
+                        } else {
+                            unimplemented!("Unsupported binary operation");
+                        }
                     }
-                }
-                BinaryOperator::Or => {
-                    let (left, left_scoped_columns, left_returning_type) =
-                        self.inner_parse(left, None);
-                    let (right, right_scoped_columns, right_returning_type) =
-                        self.inner_parse(right, None);
-                    if !left_scoped_columns.is_empty() || !right_scoped_columns.is_empty() {
-                        unimplemented!("Scoped columns not supported");
-                    }
-                    let left_returning_type =
-                        left_returning_type.expect("Left side of AND must have a type");
-                    let right_returning_type =
-                        right_returning_type.expect("Right side of AND must have a type");
-                    if left_returning_type.is_bool() && right_returning_type.is_bool() {
-                        (
-                            match (left.to_string().as_str(), right.to_string().as_str()) {
-                                ("false", "false") => quote! { false },
-                                ("true", _) | (_, "true") => quote! { true },
-                                ("false", _) => quote! { #right },
-                                (_, "false") => quote! { #left },
-                                (_, _) => quote! { #left || #right },
-                            },
-                            Vec::new(),
-                            Some(self.workspace.bool()),
-                        )
-                    } else {
-                        unimplemented!("Unsupported binary operation");
-                    }
-                }
-                BinaryOperator::NotEq
-                | BinaryOperator::Eq
-                | BinaryOperator::Gt
-                | BinaryOperator::Lt
-                | BinaryOperator::GtEq
-                | BinaryOperator::LtEq => {
-                    let (left, _, left_returning_type) = self.inner_parse(left, None);
-                    let left_returning_type =
-                        left_returning_type.expect("Left side of AND must have a type");
-                    let (right, _, right_returning_type) =
-                        self.inner_parse(right, Some(left_returning_type));
-                    let right_returning_type =
-                        right_returning_type.expect("Right side of AND must have a type");
-                    if left_returning_type != right_returning_type {
-                        unimplemented!(
-                            "Equality between different types not supported: {left_returning_type:?} and {right_returning_type:?}. {:?}",
-                            self.check_constraint
-                        );
-                    }
-                    let operator_symbol: syn::BinOp = match op {
-                        BinaryOperator::Eq => syn::BinOp::Eq(syn::token::EqEq::default()),
-                        BinaryOperator::NotEq => syn::BinOp::Ne(syn::token::Ne::default()),
-                        BinaryOperator::Gt => syn::BinOp::Gt(syn::token::Gt::default()),
-                        BinaryOperator::Lt => syn::BinOp::Lt(syn::token::Lt::default()),
-                        BinaryOperator::GtEq => syn::BinOp::Ge(syn::token::Ge::default()),
-                        BinaryOperator::LtEq => syn::BinOp::Le(syn::token::Le::default()),
-                        _ => unreachable!(),
-                    };
-                    (
-                        quote! {
-                            #left #operator_symbol #right
-                        },
-                        Vec::new(),
-                        Some(self.workspace.bool()),
-                    )
-                }
-                BinaryOperator::Plus
-                | BinaryOperator::Minus
-                | BinaryOperator::Multiply
-                | BinaryOperator::Divide
-                | BinaryOperator::Modulo => {
-                    let (left, _, left_returning_type) = self.inner_parse(left, type_hint);
-                    let (right, _, right_returning_type) = self.inner_parse(right, type_hint);
-                    if left_returning_type != right_returning_type {
-                        unimplemented!(
-                            "Binary operation between different types not supported: {left_returning_type:?} and {right_returning_type:?}. {:?}",
-                            self.check_constraint
-                        );
-                    }
-                    let left_returning_type =
-                        left_returning_type.expect("Left side of binary op must have a type");
-                    let right_returning_type =
-                        right_returning_type.expect("Right side of binary op must have a type");
-                    if left_returning_type.is_numeric() && right_returning_type.is_numeric() {
+                    BinaryOperator::NotEq
+                    | BinaryOperator::Eq
+                    | BinaryOperator::Gt
+                    | BinaryOperator::Lt
+                    | BinaryOperator::GtEq
+                    | BinaryOperator::LtEq => {
+                        let (left, _, left_returning_type) = self.inner_parse(left, None);
+                        let left_returning_type =
+                            left_returning_type.expect("Left side of AND must have a type");
+                        let (right, _, right_returning_type) =
+                            self.inner_parse(right, Some(left_returning_type));
+                        let right_returning_type =
+                            right_returning_type.expect("Right side of AND must have a type");
+                        if left_returning_type != right_returning_type {
+                            unimplemented!(
+                                "Equality between different types not supported: {left_returning_type:?} and {right_returning_type:?}. {:?}",
+                                self.check_constraint
+                            );
+                        }
                         let operator_symbol: syn::BinOp = match op {
-                            BinaryOperator::Plus => syn::BinOp::Add(syn::token::Plus::default()),
-                            BinaryOperator::Minus => syn::BinOp::Sub(syn::token::Minus::default()),
-                            BinaryOperator::Multiply => {
-                                syn::BinOp::Mul(syn::token::Star::default())
-                            }
-                            BinaryOperator::Divide => syn::BinOp::Div(syn::token::Slash::default()),
-                            BinaryOperator::Modulo => {
-                                syn::BinOp::Rem(syn::token::Percent::default())
-                            }
+                            BinaryOperator::Eq => syn::BinOp::Eq(syn::token::EqEq::default()),
+                            BinaryOperator::NotEq => syn::BinOp::Ne(syn::token::Ne::default()),
+                            BinaryOperator::Gt => syn::BinOp::Gt(syn::token::Gt::default()),
+                            BinaryOperator::Lt => syn::BinOp::Lt(syn::token::Lt::default()),
+                            BinaryOperator::GtEq => syn::BinOp::Ge(syn::token::Ge::default()),
+                            BinaryOperator::LtEq => syn::BinOp::Le(syn::token::Le::default()),
                             _ => unreachable!(),
                         };
                         (
@@ -780,21 +726,66 @@ where
                                 #left #operator_symbol #right
                             },
                             Vec::new(),
-                            Some(left_returning_type),
+                            Some(self.workspace.bool()),
                         )
-                    } else {
-                        unimplemented!(
-                            "Unsupported binary operation {} between {:?} and {:?}",
-                            op,
-                            left_returning_type,
-                            right_returning_type
-                        );
+                    }
+                    BinaryOperator::Plus
+                    | BinaryOperator::Minus
+                    | BinaryOperator::Multiply
+                    | BinaryOperator::Divide
+                    | BinaryOperator::Modulo => {
+                        let (left, _, left_returning_type) = self.inner_parse(left, type_hint);
+                        let (right, _, right_returning_type) = self.inner_parse(right, type_hint);
+                        if left_returning_type != right_returning_type {
+                            unimplemented!(
+                                "Binary operation between different types not supported: {left_returning_type:?} and {right_returning_type:?}. {:?}",
+                                self.check_constraint
+                            );
+                        }
+                        let left_returning_type =
+                            left_returning_type.expect("Left side of binary op must have a type");
+                        let right_returning_type =
+                            right_returning_type.expect("Right side of binary op must have a type");
+                        if left_returning_type.is_numeric() && right_returning_type.is_numeric() {
+                            let operator_symbol: syn::BinOp = match op {
+                                BinaryOperator::Plus => {
+                                    syn::BinOp::Add(syn::token::Plus::default())
+                                }
+                                BinaryOperator::Minus => {
+                                    syn::BinOp::Sub(syn::token::Minus::default())
+                                }
+                                BinaryOperator::Multiply => {
+                                    syn::BinOp::Mul(syn::token::Star::default())
+                                }
+                                BinaryOperator::Divide => {
+                                    syn::BinOp::Div(syn::token::Slash::default())
+                                }
+                                BinaryOperator::Modulo => {
+                                    syn::BinOp::Rem(syn::token::Percent::default())
+                                }
+                                _ => unreachable!(),
+                            };
+                            (
+                                quote! {
+                                    #left #operator_symbol #right
+                                },
+                                Vec::new(),
+                                Some(left_returning_type),
+                            )
+                        } else {
+                            unimplemented!(
+                                "Unsupported binary operation {} between {:?} and {:?}",
+                                op,
+                                left_returning_type,
+                                right_returning_type
+                            );
+                        }
+                    }
+                    operator => {
+                        unimplemented!("Unsupported binary operator: {operator:?}");
                     }
                 }
-                operator => {
-                    unimplemented!("Unsupported binary operator: {operator:?}");
-                }
-            },
+            }
             Expr::Value(value) => {
                 let (token_stream, returning_type) = self.parse_value_with_span(value, type_hint);
                 (token_stream, Vec::new(), Some(returning_type))

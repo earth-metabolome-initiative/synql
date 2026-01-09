@@ -52,13 +52,9 @@ where
         database: &'db Self::DB,
     ) -> impl Iterator<Item = &'db <Self::DB as DatabaseLike>::ForeignKey> {
         use crate::traits::same_as::vertical_same_as::vertical_same_as_table::VerticalSameAsTableLike;
-        self.table(database)
-            .vertical_same_as_foreign_keys(database)
-            .filter(move |fk| {
-                fk.host_columns(database)
-                    .map(Borrow::borrow)
-                    .any(|col: &Self| col == self)
-            })
+        self.table(database).vertical_same_as_foreign_keys(database).filter(move |fk| {
+            fk.host_columns(database).map(Borrow::borrow).any(|col: &Self| col == self)
+        })
     }
 
     /// Returns the set of columns that are directly vertically same-as this
@@ -152,9 +148,8 @@ where
         database: &'db Self::DB,
     ) -> HashSet<&'db <Self::DB as DatabaseLike>::Column> {
         let mut reachable_set = HashSet::new();
-        for vertical_same_as_foreign_key in self
-            .vertical_same_as_foreign_keys(database)
-            .map(Borrow::borrow)
+        for vertical_same_as_foreign_key in
+            self.vertical_same_as_foreign_keys(database).map(Borrow::borrow)
         {
             let same_as_column = vertical_same_as_foreign_key
                 .referenced_column_for_host_column(database, self.borrow());
@@ -209,11 +204,8 @@ where
     where
         Self: 'db,
     {
-        let mut reachable_set: HashSet<&Self> = self
-            .vertical_same_as_reachable_set(database)
-            .into_iter()
-            .map(Borrow::borrow)
-            .collect();
+        let mut reachable_set: HashSet<&Self> =
+            self.vertical_same_as_reachable_set(database).into_iter().map(Borrow::borrow).collect();
         // The frontier contains the set of columns which so far can only be reached
         // from the current column. Once a column in the frontier is found to be
         // reachable from another column in the reachable set, it is marked as true

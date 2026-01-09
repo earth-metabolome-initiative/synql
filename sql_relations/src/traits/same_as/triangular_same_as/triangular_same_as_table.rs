@@ -51,8 +51,7 @@ where
     where
         Self: 'db,
     {
-        self.foreign_keys(database)
-            .filter(|fk| fk.is_triangular_same_as(database))
+        self.foreign_keys(database).filter(|fk| fk.is_triangular_same_as(database))
     }
 }
 

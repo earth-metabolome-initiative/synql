@@ -47,8 +47,7 @@ where
     where
         Self: 'db,
     {
-        self.unique_indices(database)
-            .filter(|index| index.is_same_as(database))
+        self.unique_indices(database).filter(|index| index.is_same_as(database))
     }
 }
 

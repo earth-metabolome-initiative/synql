@@ -339,28 +339,19 @@ pub trait TriangularSameAsForeignKeyLike: HorizontalSameAsForeignKeyLike {
         for horizontal_same_as in host_table.horizontal_same_as_foreign_keys(database) {
             let horizontal_same_as: &Self = horizontal_same_as.borrow();
             // We retrieve the local columns of the foreign key we are checking.
-            let fk_local_columns = horizontal_same_as
-                .host_columns(database)
-                .collect::<Vec<_>>();
+            let fk_local_columns = horizontal_same_as.host_columns(database).collect::<Vec<_>>();
             // If all of the columns involved in the current constraint are
             // present in the local columns of the foreign key, we proceed
             // to check the foreign columns.
-            if !candidate_host_columns
-                .iter()
-                .all(|c| fk_local_columns.contains(c))
-            {
+            if !candidate_host_columns.iter().all(|c| fk_local_columns.contains(c)) {
                 continue;
             }
 
-            let fk_referenced_columns = horizontal_same_as
-                .referenced_columns(database)
-                .collect::<Vec<_>>();
+            let fk_referenced_columns =
+                horizontal_same_as.referenced_columns(database).collect::<Vec<_>>();
             // All of the referenced columns of the current constraint must
             // be present in the referenced columns of the foreign key.
-            if !candidate_referenced_columns
-                .iter()
-                .all(|c| fk_referenced_columns.contains(c))
-            {
+            if !candidate_referenced_columns.iter().all(|c| fk_referenced_columns.contains(c)) {
                 continue;
             }
 
@@ -381,10 +372,7 @@ pub trait TriangularSameAsForeignKeyLike: HorizontalSameAsForeignKeyLike {
             }
         }
 
-        Some(Triangular {
-            horizontal_same_as: None,
-            hypothenuse_same_as: hypothenuses_same_as[0],
-        })
+        Some(Triangular { horizontal_same_as: None, hypothenuse_same_as: hypothenuses_same_as[0] })
     }
 }
 

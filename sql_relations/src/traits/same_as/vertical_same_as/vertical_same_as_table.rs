@@ -48,8 +48,7 @@ where
     where
         Self: 'db,
     {
-        self.foreign_keys(database)
-            .filter(|fk| fk.is_vertical_same_as(database))
+        self.foreign_keys(database).filter(|fk| fk.is_vertical_same_as(database))
     }
 
     /// Returns whether the table has any vertical same-as relationships.
@@ -87,9 +86,7 @@ where
     /// # }
     /// ```
     fn has_vertical_same_as(&self, database: &Self::DB) -> bool {
-        self.vertical_same_as_foreign_keys(database)
-            .next()
-            .is_some()
+        self.vertical_same_as_foreign_keys(database).next().is_some()
     }
 }
 

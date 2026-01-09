@@ -50,7 +50,8 @@ impl WorkspaceBuilder {
     ///
     /// # Errors
     ///
-    /// Returns `WorkspaceBuilderError::InvalidName` if the name is empty or contains spaces.
+    /// Returns `WorkspaceBuilderError::InvalidName` if the name is empty or
+    /// contains spaces.
     pub fn name<S: ToString + ?Sized>(mut self, name: &S) -> Result<Self, WorkspaceBuilderError> {
         let name = name.to_string();
         if name.trim().is_empty() || name.contains(' ') {
@@ -173,8 +174,7 @@ impl WorkspaceBuilder {
     /// Adds the `postgis-diesel` external crate to the workspace.
     #[must_use]
     pub fn postgis_diesel(self, number_of_columns: MaximalNumberOfColumns) -> Self {
-        self.external_crate(ExternalCrate::postgis_diesel())
-            .diesel(number_of_columns)
+        self.external_crate(ExternalCrate::postgis_diesel()).diesel(number_of_columns)
     }
 
     /// Adds the `pgrx_validation` external crate to the workspace.

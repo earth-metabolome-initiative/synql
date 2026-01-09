@@ -55,13 +55,9 @@ where
         database: &'db Self::DB,
     ) -> impl Iterator<Item = &'db <Self::DB as DatabaseLike>::ForeignKey> {
         use crate::traits::same_as::HorizontalSameAsTableLike;
-        self.table(database)
-            .horizontal_same_as_foreign_keys(database)
-            .filter(move |fk| {
-                fk.host_columns(database)
-                    .map(Borrow::borrow)
-                    .any(|col: &Self| col == self)
-            })
+        self.table(database).horizontal_same_as_foreign_keys(database).filter(move |fk| {
+            fk.host_columns(database).map(Borrow::borrow).any(|col: &Self| col == self)
+        })
     }
 
     /// Returns whether the column has any horizontal same-as foreign key.
@@ -97,9 +93,7 @@ where
     /// # }
     /// ```
     fn has_horizontal_same_as_foreign_key(&self, database: &Self::DB) -> bool {
-        self.horizontal_same_as_foreign_keys(database)
-            .next()
-            .is_some()
+        self.horizontal_same_as_foreign_keys(database).next().is_some()
     }
 }
 

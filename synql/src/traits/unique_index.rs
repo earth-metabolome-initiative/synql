@@ -14,10 +14,8 @@ pub trait UniqueIndexSynLike: UniqueIndexLike {
     /// using the `diesel-builders` crate.
     fn to_syn(&self, database: &Self::DB) -> TokenStream {
         let table_ident = self.table(database).table_ident();
-        let column_idents = self
-            .columns(database)
-            .map(ColumnSynLike::column_snake_ident)
-            .map(|ident| {
+        let column_idents =
+            self.columns(database).map(ColumnSynLike::column_snake_ident).map(|ident| {
                 quote! {#table_ident::#ident}
             });
         quote! {

@@ -24,10 +24,7 @@ impl ExternalCrate {
                 ExternalType::geography(),
             ])
             .unwrap()
-            .git(
-                "https://github.com/LucaCappelletti94/postgis-diesel",
-                "master",
-            )
+            .git("https://github.com/LucaCappelletti94/postgis-diesel", "master")
             .into()
     }
 }

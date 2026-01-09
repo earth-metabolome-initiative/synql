@@ -17,10 +17,7 @@ impl<'workspace> ExternalTypeRef<'workspace> {
         external_crate: &'a ExternalCrate,
         type_ref: &'a ExternalType,
     ) -> ExternalTypeRef<'a> {
-        ExternalTypeRef {
-            external_crate,
-            type_ref,
-        }
+        ExternalTypeRef { external_crate, type_ref }
     }
 
     /// Returns a reference to the name of the crate.

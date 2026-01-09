@@ -9,10 +9,7 @@ impl ExternalCrate {
     pub fn validation_errors() -> ExternalCrate {
         ExternalCrate::new("validation_errors")
             .unwrap()
-            .git(
-                "https://github.com/earth-metabolome-initiative/emi-monorepo",
-                "postgres-crate",
-            )
+            .git("https://github.com/earth-metabolome-initiative/emi-monorepo", "postgres-crate")
             .into()
     }
 }

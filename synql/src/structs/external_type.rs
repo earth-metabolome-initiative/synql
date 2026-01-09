@@ -78,9 +78,7 @@ impl ExternalType {
     /// * `postgres_type` - The postgres type to check compatibility with.
     #[must_use]
     pub fn is_compatible_with(&self, postgres_type: &str) -> bool {
-        self.postgres_types
-            .iter()
-            .any(|t| t.eq_ignore_ascii_case(postgres_type))
+        self.postgres_types.iter().any(|t| t.eq_ignore_ascii_case(postgres_type))
     }
 
     /// Casts a value to the external type.

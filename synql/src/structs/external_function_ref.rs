@@ -22,10 +22,7 @@ impl<'workspace> ExternalFunctionRef<'workspace> {
         external_crate: &'workspace ExternalCrate,
         external_function: &'workspace ExternalFunction,
     ) -> Self {
-        Self {
-            external_function,
-            external_crate,
-        }
+        Self { external_function, external_crate }
     }
 
     /// Returns the name of the external function.

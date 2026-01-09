@@ -112,11 +112,7 @@ impl<'db, DB: SynQLDatabaseLike> SynQL<'db, DB> {
                 write!(buffer, ", ")?;
             }
 
-            write!(
-                buffer,
-                "\"{}\"",
-                table.crate_relative_path(workspace).display()
-            )?;
+            write!(buffer, "\"{}\"", table.crate_relative_path(workspace).display())?;
             wrote = true;
         }
 
@@ -124,11 +120,7 @@ impl<'db, DB: SynQLDatabaseLike> SynQL<'db, DB> {
             if wrote {
                 write!(buffer, ", ")?;
             }
-            write!(
-                buffer,
-                "\"{}\"",
-                workspace.crate_base_path().join(sink_crate_name).display()
-            )?;
+            write!(buffer, "\"{}\"", workspace.crate_base_path().join(sink_crate_name).display())?;
         }
 
         writeln!(buffer, "]")?;
@@ -177,11 +169,8 @@ impl<'db, DB: SynQLDatabaseLike> SynQL<'db, DB> {
 
             let features = external_crate.features();
             if !features.is_empty() {
-                let features_str = features
-                    .iter()
-                    .map(|f| format!("\"{f}\""))
-                    .collect::<Vec<_>>()
-                    .join(", ");
+                let features_str =
+                    features.iter().map(|f| format!("\"{f}\"")).collect::<Vec<_>>().join(", ");
                 parts.push(format!("features = [{features_str}]"));
             }
 
@@ -239,11 +228,7 @@ impl<'db, DB: SynQLDatabaseLike> SynQL<'db, DB> {
         let workspace: Workspace = Workspace::new()
             .path(self.path.to_path_buf())
             .crate_base_path(self.crate_base_path.to_path_buf())
-            .name(
-                self.name
-                    .as_deref()
-                    .unwrap_or_else(|| self.database.catalog_name()),
-            )
+            .name(self.name.as_deref().unwrap_or_else(|| self.database.catalog_name()))
             .expect("Invalid workspace name")
             .external_crates(self.external_crates.iter().cloned())
             .rosetta_timestamp()
@@ -297,10 +282,8 @@ impl<'db, DB: SynQLDatabaseLike> SynQL<'db, DB> {
         }
 
         if let Some(sink_crate_name) = &self.sink_crate_name {
-            let sink_crate_path = workspace
-                .path()
-                .join(workspace.crate_base_path())
-                .join(sink_crate_name);
+            let sink_crate_path =
+                workspace.path().join(workspace.crate_base_path()).join(sink_crate_name);
             std::fs::create_dir_all(&sink_crate_path)?;
 
             let writing_sink_toml = Task::new("writing_sink_crate_toml");

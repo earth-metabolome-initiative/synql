@@ -24,10 +24,7 @@ impl ExternalCrate {
         ExternalCrate::new("diesel-builders")
             .unwrap()
             .features(number_of_columns.as_diesel_builders_feature())
-            .git(
-                "https://github.com/LucaCappelletti94/diesel-builders",
-                "main",
-            )
+            .git("https://github.com/LucaCappelletti94/diesel-builders", "main")
             .into()
     }
 }

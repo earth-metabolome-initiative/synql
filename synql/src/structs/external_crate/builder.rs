@@ -25,7 +25,8 @@ impl ExternalCrateBuilder {
     ///
     /// # Errors
     ///
-    /// Returns `ExternalCrateBuilderError::InvalidName` if the name is empty or contains spaces.
+    /// Returns `ExternalCrateBuilderError::InvalidName` if the name is empty or
+    /// contains spaces.
     pub fn new(name: &str) -> Result<Self, ExternalCrateBuilderError> {
         if name.trim().is_empty() || name.contains(' ') {
             return Err(ExternalCrateBuilderError::InvalidName);
@@ -67,16 +68,10 @@ impl Display for ExternalCrateBuilderError {
                 )
             }
             ExternalCrateBuilderError::DuplicatedMacro => {
-                write!(
-                    f,
-                    "A macro with the same name has already been added to the crate"
-                )
+                write!(f, "A macro with the same name has already been added to the crate")
             }
             ExternalCrateBuilderError::DuplicatedTrait => {
-                write!(
-                    f,
-                    "A trait with the same name has already been added to the crate"
-                )
+                write!(f, "A trait with the same name has already been added to the crate")
             }
         }
     }
@@ -90,17 +85,14 @@ impl ExternalCrateBuilder {
     ///
     /// # Errors
     ///
-    /// Returns `ExternalCrateBuilderError::DuplicatedPostgresType` if a type with the same postgres type is already added.
+    /// Returns `ExternalCrateBuilderError::DuplicatedPostgresType` if a type
+    /// with the same postgres type is already added.
     pub fn add_type(
         mut self,
         required_type: ExternalType,
     ) -> Result<Self, ExternalCrateBuilderError> {
         for postgres_type in required_type.postgres_types() {
-            if self
-                .types
-                .iter()
-                .any(|t| t.is_compatible_with(postgres_type))
-            {
+            if self.types.iter().any(|t| t.is_compatible_with(postgres_type)) {
                 return Err(ExternalCrateBuilderError::DuplicatedPostgresType);
             }
         }
@@ -115,7 +107,8 @@ impl ExternalCrateBuilder {
     ///
     /// # Errors
     ///
-    /// Returns `ExternalCrateBuilderError::DuplicatedPostgresType` if a type with the same postgres type is already added.
+    /// Returns `ExternalCrateBuilderError::DuplicatedPostgresType` if a type
+    /// with the same postgres type is already added.
     pub fn types<I>(mut self, required_types: I) -> Result<Self, ExternalCrateBuilderError>
     where
         I: IntoIterator<Item = ExternalType>,

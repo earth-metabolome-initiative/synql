@@ -8,10 +8,6 @@ impl ExternalCrate {
     /// Returns the cached `ExternalCrate` instance describing the `core` crate.
     #[must_use]
     pub fn core() -> ExternalCrate {
-        ExternalCrate::new("core")
-            .unwrap()
-            .types(numeric::all_types())
-            .unwrap()
-            .into()
+        ExternalCrate::new("core").unwrap().types(numeric::all_types()).unwrap().into()
     }
 }

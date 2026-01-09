@@ -25,10 +25,7 @@ impl ExternalCrate {
                     syn::parse_quote!(::pgrx_validation::must_be_email),
                 ),
             ])
-            .git(
-                "https://github.com/earth-metabolome-initiative/emi-monorepo",
-                "postgres-crate",
-            )
+            .git("https://github.com/earth-metabolome-initiative/emi-monorepo", "postgres-crate")
             .into()
     }
 }

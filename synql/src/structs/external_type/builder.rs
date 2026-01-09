@@ -24,12 +24,7 @@ impl ExternalTypeBuilder {
     /// Creates a new `ExternalTypeBuilder`.
     #[must_use]
     pub fn new(diesel_type: syn::Type, rust_type: syn::Type) -> Self {
-        Self {
-            diesel_type,
-            rust_type,
-            postgres_types: Vec::new(),
-            traits: TraitsMask::default(),
-        }
+        Self { diesel_type, rust_type, postgres_types: Vec::new(), traits: TraitsMask::default() }
     }
 }
 

@@ -32,48 +32,42 @@ impl ExternalType {
     /// Returns an `ExternalType` instance describing the `String` type from the
     /// `std` crate.
     fn string() -> Self {
-        ExternalType::new(
-            syn::parse_quote!(diesel::sql_types::Text),
-            syn::parse_quote!(String),
-        )
-        .postgres_types([
-            "text",
-            "char",
-            "character",
-            "character varying",
-            "varchar",
-            "bpchar",
-            "pg_node_tree",
-            "name",
-            "aclitem",
-            "yes_or_no",
-            "sql_identifier",
-            "character_data",
-        ])
-        .unwrap()
-        .supports_debug()
-        .supports_clone()
-        .supports_default()
-        .supports_hash()
-        .supports_ord()
-        .into()
+        ExternalType::new(syn::parse_quote!(diesel::sql_types::Text), syn::parse_quote!(String))
+            .postgres_types([
+                "text",
+                "char",
+                "character",
+                "character varying",
+                "varchar",
+                "bpchar",
+                "pg_node_tree",
+                "name",
+                "aclitem",
+                "yes_or_no",
+                "sql_identifier",
+                "character_data",
+            ])
+            .unwrap()
+            .supports_debug()
+            .supports_clone()
+            .supports_default()
+            .supports_hash()
+            .supports_ord()
+            .into()
     }
 
     /// Returns an `ExternalType` instance describing the `Vec<u8>` type from
     /// the `std` crate.
     fn vec_u8() -> Self {
-        ExternalType::new(
-            syn::parse_quote!(diesel::sql_types::Binary),
-            syn::parse_quote!(Vec<u8>),
-        )
-        .postgres_types(["bytea", "bit", "varbit"])
-        .unwrap()
-        .supports_debug()
-        .supports_clone()
-        .supports_default()
-        .supports_hash()
-        .supports_ord()
-        .into()
+        ExternalType::new(syn::parse_quote!(diesel::sql_types::Binary), syn::parse_quote!(Vec<u8>))
+            .postgres_types(["bytea", "bit", "varbit"])
+            .unwrap()
+            .supports_debug()
+            .supports_clone()
+            .supports_default()
+            .supports_hash()
+            .supports_ord()
+            .into()
     }
 
     /// Returns an `ExternalType` instance describing the `Vec<i16>` type from

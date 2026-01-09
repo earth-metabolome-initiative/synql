@@ -1,9 +1,9 @@
-//! Submodule providing the `TableListLike` trait, which characterizes `TableLike` traits
-//! which contain a single field, which is textual and the primary key of the table.
-//! Furthermore, there must be a root table which references this table via a foreign key.
+//! Submodule providing the `TableListLike` trait, which characterizes
+//! `TableLike` traits which contain a single field, which is textual and the
+//! primary key of the table. Furthermore, there must be a root table which
+//! references this table via a foreign key.
 
-use sql_traits::traits::ColumnLike;
-use sql_traits::traits::{DatabaseLike, TableLike};
+use sql_traits::traits::{ColumnLike, DatabaseLike, ForeignKeyLike, TableLike};
 
 /// Trait for tables that contain a single textual primary key field
 /// and are referenced by a root table via a foreign key.
@@ -68,9 +68,47 @@ pub trait TableListLike: TableLike {
         }
 
         // Check if there is at least one foreign key referencing this table
-        database
-            .root_tables()
-            .any(|table| table.refers_to(database, self.borrow()))
+        database.root_tables().any(|table| table.refers_to(database, self.borrow()))
+    }
+
+    /// Iterates over the columns of the table which refer to table-list tables.
+    ///
+    /// # Arguments
+    ///
+    /// * `database` - The database context to check foreign key references.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// use sql_relations::prelude::*;
+    ///
+    /// let db = ParserDB::try_from(
+    ///     r#"
+    /// CREATE TABLE valid_list (name TEXT PRIMARY KEY);
+    /// CREATE TABLE root (id INT PRIMARY KEY, list_name TEXT, FOREIGN KEY(list_name) REFERENCES valid_list(name));
+    /// CREATE TABLE child_of_root (id INT PRIMARY KEY REFERENCES root(id));
+    /// "#,
+    /// )?;
+    ///
+    /// let root_table = db.table(None, "root").unwrap();
+    /// let referring_columns = root_table.columns_referring_to_table_lists(&db).collect::<Vec<_>>();
+    /// assert_eq!(referring_columns.len(), 1);
+    /// assert_eq!(referring_columns[0].column_name(), "list_name");
+    ///
+    /// # Ok(())
+    /// # }
+    /// ```
+    fn columns_referring_to_table_lists<'db>(
+        &'db self,
+        database: &'db Self::DB,
+    ) -> impl Iterator<Item = &'db <Self::DB as DatabaseLike>::Column> {
+        self.columns(database).filter(move |column| {
+            column.foreign_keys(database).any(|fk| {
+                let referenced_table = fk.referenced_table(database);
+                referenced_table.is_table_list_like(database)
+            })
+        })
     }
 }
 

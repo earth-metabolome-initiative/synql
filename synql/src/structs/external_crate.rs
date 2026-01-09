@@ -62,7 +62,8 @@ impl ExternalCrate {
     ///
     /// # Errors
     ///
-    /// Returns `ExternalCrateBuilderError::InvalidName` if the name is empty or contains spaces.
+    /// Returns `ExternalCrateBuilderError::InvalidName` if the name is empty or
+    /// contains spaces.
     #[must_use = "the builder must be used to configure and build the ExternalCrate"]
     pub fn new(name: &str) -> Result<ExternalCrateBuilder, ExternalCrateBuilderError> {
         ExternalCrateBuilder::new(name)
@@ -94,9 +95,7 @@ impl ExternalCrate {
     #[inline]
     #[must_use]
     pub fn git(&self) -> Option<(&str, &str)> {
-        self.git
-            .as_ref()
-            .map(|(repo, branch)| (repo.as_str(), branch.as_str()))
+        self.git.as_ref().map(|(repo, branch)| (repo.as_str(), branch.as_str()))
     }
 
     /// Returns the feature flags required by the crate.
@@ -127,10 +126,7 @@ impl ExternalCrate {
     ///   function.
     #[must_use]
     pub fn external_function_ref(&self, name: &str) -> Option<ExternalFunctionRef<'_>> {
-        self.functions
-            .iter()
-            .find(|f| f.name() == name)
-            .map(|f| ExternalFunctionRef::new(self, f))
+        self.functions.iter().find(|f| f.name() == name).map(|f| ExternalFunctionRef::new(self, f))
     }
 
     /// Returns the external type compatible with the provided postgres name, if
