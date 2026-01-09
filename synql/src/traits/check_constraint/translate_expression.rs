@@ -107,6 +107,8 @@ where
         let table_ident = self.table().table_snake_ident();
         let left_column_ident = left_column.column_snake_ident();
         let right_column_ident = right_column.column_snake_ident();
+        let l_name = quote! { crate::#table_ident::#left_column_ident::NAME };
+        let r_name = quote! { crate::#table_ident::#right_column_ident::NAME };
         let validation_error = quote! { validation_errors::prelude::ValidationError };
         let compare_op = |op: TokenStream| {
             match (
@@ -148,10 +150,7 @@ where
                 let compare_op = compare_op(quote! {==});
                 quote! {
                     if #compare_op {
-                        return Err(#validation_error::equal(
-                            crate::#table_ident::#left_column_ident::NAME,
-                            crate::#table_ident::#right_column_ident::NAME
-                        ));
+                        return Err(#validation_error::equal(#l_name, #r_name));
                     }
                 }
             }
@@ -159,10 +158,7 @@ where
                 let compare_op = compare_op(quote! {>});
                 quote! {
                     if #compare_op {
-                        return Err(#validation_error::smaller_than(
-                            crate::#table_ident::#left_column_ident::NAME,
-                            crate::#table_ident::#right_column_ident::NAME
-                        ));
+                        return Err(#validation_error::smaller_than(#l_name, #r_name));
                     }
                 }
             }
@@ -170,10 +166,7 @@ where
                 let compare_op = compare_op(quote! {>=});
                 quote! {
                     if #compare_op {
-                        return Err(#validation_error::strictly_smaller_than(
-                            crate::#table_ident::#left_column_ident::NAME,
-                            crate::#table_ident::#right_column_ident::NAME
-                        ));
+                        return Err(#validation_error::strictly_smaller_than(#l_name, #r_name));
                     }
                 }
             }
@@ -181,10 +174,7 @@ where
                 let compare_op = compare_op(quote! {<=});
                 quote! {
                     if #compare_op {
-                        return Err(#validation_error::strictly_greater_than(
-                            crate::#table_ident::#left_column_ident::NAME,
-                            crate::#table_ident::#right_column_ident::NAME
-                        ));
+                        return Err(#validation_error::strictly_greater_than(#l_name, #r_name));
                     }
                 }
             }
@@ -192,10 +182,7 @@ where
                 let compare_op = compare_op(quote! {<});
                 quote! {
                     if #compare_op {
-                        return Err(#validation_error::greater_than(
-                            crate::#table_ident::#left_column_ident::NAME,
-                            crate::#table_ident::#right_column_ident::NAME
-                        ));
+                        return Err(#validation_error::greater_than(#l_name, #r_name));
                     }
                 }
             }

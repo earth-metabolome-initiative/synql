@@ -3,7 +3,10 @@
 use std::io::Write;
 
 use quote::quote;
-use sql_relations::prelude::{ColumnLike, TableLike};
+use sql_relations::{
+    prelude::{ColumnLike, TableLike},
+    traits::TableListLike,
+};
 
 use crate::{
     structs::{SynQL, Workspace},
@@ -90,6 +93,22 @@ impl<DB: SynQLDatabaseLike> SynQL<'_, DB> {
             })
         };
 
+        let ancestral_table_list_decorator = if let Some(table_root) =
+            table.extension_root_table(self.database)
+        {
+            let current_table_name = table.table_name();
+            let root_table_ident = table_root.table_ident();
+            let root_table_crate = table_root.crate_ident(workspace);
+            table_root.columns_referring_to_table_lists(self.database).map(|col| {
+                let col_ident = col.column_snake_ident();
+                quote! {
+                    #[table_model(default(#root_table_crate::#root_table_ident::#col_ident, #current_table_name))]
+                }
+            }).collect::<Vec<_>>()
+        } else {
+            Vec::new()
+        };
+
         let fields = table.generate_struct_fields(workspace, self.database)?;
         let unique_indices = table.unique_indices_macros(self.database);
         let foreign_keys = table.foreign_keys_macros(self.database, workspace);
@@ -107,6 +126,7 @@ impl<DB: SynQLDatabaseLike> SynQL<'_, DB> {
             #error_decorator
             #primary_key_decorator
             #surrogate_key_decorator
+            #(#ancestral_table_list_decorator)*
             #[diesel(table_name = #table_ident)]
             pub struct #camel_case_name {
                 #(#fields),*
