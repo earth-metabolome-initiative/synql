@@ -10,12 +10,16 @@ use crate::{
 };
 
 impl<DB: SynQLDatabaseLike> SynQL<'_, DB> {
-    pub(super) fn write_sink_crate_lib(
+    pub(super) fn write_sink_crate_lib<'a>(
         &self,
         workspace: &Workspace,
         sink_crate_name: &str,
         sink_crate_path: &Path,
-    ) -> Result<(), crate::Error> {
+        tables: impl Iterator<Item = &'a DB::Table>,
+    ) -> Result<(), crate::Error>
+    where
+        DB::Table: 'a,
+    {
         // We create the `src` directory if it does not exist
         let src_path = sink_crate_path.join("src");
         std::fs::create_dir_all(&src_path)?;
@@ -28,7 +32,7 @@ impl<DB: SynQLDatabaseLike> SynQL<'_, DB> {
         );
 
         let mut re_exports = Vec::new();
-        for table in self.database.tables() {
+        for table in tables {
             if self.skip_table(table) {
                 continue;
             }

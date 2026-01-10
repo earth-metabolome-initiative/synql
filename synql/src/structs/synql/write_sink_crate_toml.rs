@@ -8,12 +8,16 @@ use crate::{
 };
 
 impl<DB: SynQLDatabaseLike> SynQL<'_, DB> {
-    pub(super) fn write_sink_crate_toml(
+    pub(super) fn write_sink_crate_toml<'a>(
         &self,
         workspace: &Workspace,
         sink_crate_name: &str,
         sink_crate_path: &Path,
-    ) -> Result<(), crate::Error> {
+        tables: impl Iterator<Item = &'a DB::Table>,
+    ) -> Result<(), crate::Error>
+    where
+        DB::Table: 'a,
+    {
         let cargo_toml_path = sink_crate_path.join("Cargo.toml");
         let mut buffer = std::fs::File::create(cargo_toml_path)?;
         let (major, minor, patch) = workspace.version();
@@ -30,7 +34,7 @@ edition.workspace = true
         // Add dependencies
         writeln!(buffer, "\n[dependencies]")?;
 
-        for table in self.database.tables() {
+        for table in tables {
             if self.skip_table(table) {
                 continue;
             }

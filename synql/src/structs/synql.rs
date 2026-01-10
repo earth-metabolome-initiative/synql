@@ -40,6 +40,8 @@ pub struct SynQL<'db, DB: SynQLDatabaseLike> {
     generate_rustfmt: bool,
     /// Whether to also generate a crate which imports all the table crates.
     sink_crate_name: Option<String>,
+    /// Prefix for sink crates generated for each table DAG.
+    dag_sink_crate_prefix: Option<String>,
     /// External rust crates to include in the workspace.
     external_crates: Vec<ExternalCrate>,
     /// Whether to clear workspace directory if it already exists.
@@ -121,6 +123,25 @@ impl<'db, DB: SynQLDatabaseLike> SynQL<'db, DB> {
                 write!(buffer, ", ")?;
             }
             write!(buffer, "\"{}\"", workspace.crate_base_path().join(sink_crate_name).display())?;
+        }
+
+        if let Some(prefix) = &self.dag_sink_crate_prefix {
+            for root_table in self.database.root_tables() {
+                if self.skip_table(root_table) {
+                    continue;
+                }
+                let root_name = root_table.table_snake_name();
+                let sink_crate_name = format!("{prefix}{root_name}");
+                if wrote {
+                    write!(buffer, ", ")?;
+                }
+                write!(
+                    buffer,
+                    "\"{}\"",
+                    workspace.crate_base_path().join(sink_crate_name).display()
+                )?;
+                wrote = true;
+            }
         }
 
         writeln!(buffer, "]")?;
@@ -205,6 +226,7 @@ impl<'db, DB: SynQLDatabaseLike> SynQL<'db, DB> {
         Ok(())
     }
 
+    #[allow(clippy::too_many_lines)]
     /// Executes the workspace generation.
     ///
     /// # Errors
@@ -287,12 +309,63 @@ impl<'db, DB: SynQLDatabaseLike> SynQL<'db, DB> {
             std::fs::create_dir_all(&sink_crate_path)?;
 
             let writing_sink_toml = Task::new("writing_sink_crate_toml");
-            self.write_sink_crate_toml(&workspace, sink_crate_name, &sink_crate_path)?;
+            self.write_sink_crate_toml(
+                &workspace,
+                sink_crate_name,
+                &sink_crate_path,
+                self.database.tables(),
+            )?;
             time_tracker.add_or_extend_completed_task(writing_sink_toml);
 
             let writing_sink_lib = Task::new("writing_sink_crate_lib");
-            self.write_sink_crate_lib(&workspace, sink_crate_name, &sink_crate_path)?;
+            self.write_sink_crate_lib(
+                &workspace,
+                sink_crate_name,
+                &sink_crate_path,
+                self.database.tables(),
+            )?;
             time_tracker.add_or_extend_completed_task(writing_sink_lib);
+        }
+
+        if let Some(prefix) = &self.dag_sink_crate_prefix {
+            for root_table in self.database.root_tables() {
+                if self.skip_table(root_table) {
+                    continue;
+                }
+                let root_name = root_table.table_snake_name();
+                let sink_crate_name = format!("{prefix}{root_name}");
+                let sink_crate_path =
+                    workspace.path().join(workspace.crate_base_path()).join(&sink_crate_name);
+                std::fs::create_dir_all(&sink_crate_path)?;
+
+                // We identify the tables which are part of the DAG rooted at `root_table`.
+                let dag_tables = || {
+                    self.database.tables().filter(|table| {
+                        table.table_name() == root_table.table_name()
+                            || table.depends_on(self.database, root_table)
+                    })
+                };
+
+                let writing_sink_toml =
+                    Task::new(&format!("writing_sink_crate_toml_{sink_crate_name}"));
+                self.write_sink_crate_toml(
+                    &workspace,
+                    &sink_crate_name,
+                    &sink_crate_path,
+                    dag_tables(),
+                )?;
+                time_tracker.add_or_extend_completed_task(writing_sink_toml);
+
+                let writing_sink_lib =
+                    Task::new(&format!("writing_sink_crate_lib_{sink_crate_name}"));
+                self.write_sink_crate_lib(
+                    &workspace,
+                    &sink_crate_name,
+                    &sink_crate_path,
+                    dag_tables(),
+                )?;
+                time_tracker.add_or_extend_completed_task(writing_sink_lib);
+            }
         }
 
         if self.generate_workspace_toml {

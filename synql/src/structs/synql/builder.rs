@@ -18,6 +18,7 @@ pub struct SynQLBuilder<'db, DB: SynQLDatabaseLike> {
     generate_workspace_toml: bool,
     generate_rustfmt: bool,
     sink_crate_name: Option<String>,
+    dag_sink_crate_prefix: Option<String>,
     external_crates: Vec<ExternalCrate>,
     /// Additional workspace members.
     members: Vec<&'db Path>,
@@ -40,6 +41,7 @@ impl<'db, DB: SynQLDatabaseLike> SynQLBuilder<'db, DB> {
             generate_workspace_toml: false,
             generate_rustfmt: false,
             sink_crate_name: None,
+            dag_sink_crate_prefix: None,
             external_crates: Vec::new(),
             members: Vec::new(),
         }
@@ -137,6 +139,15 @@ impl<'db, DB: SynQLDatabaseLike> SynQLBuilder<'db, DB> {
         self
     }
 
+    /// Sets whether to generate sink crates for each table DAG with a given
+    /// prefix.
+    #[must_use]
+    #[inline]
+    pub fn dag_sink_crate_prefix(mut self, prefix: &str) -> Self {
+        self.dag_sink_crate_prefix = Some(prefix.to_string());
+        self
+    }
+
     /// Adds a member path to the workspace.
     ///
     /// # Arguments
@@ -182,6 +193,7 @@ impl<'db, DB: SynQLDatabaseLike> From<SynQLBuilder<'db, DB>> for SynQL<'db, DB> 
             generate_workspace_toml: builder.generate_workspace_toml,
             generate_rustfmt: builder.generate_rustfmt,
             sink_crate_name: builder.sink_crate_name,
+            dag_sink_crate_prefix: builder.dag_sink_crate_prefix,
             external_crates: builder.external_crates,
             members: builder.members,
         }
