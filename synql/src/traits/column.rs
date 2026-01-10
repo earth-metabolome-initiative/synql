@@ -532,7 +532,7 @@ pub trait ColumnSynLike: ColumnLike {
             impl ::diesel_builders::ValidateColumn<#table_ident::#column_ident>
                 for <#table_ident::table as ::diesel_builders::TableExt>::NewValues
             {
-                type Error = ::validation_errors::ValidationError<&'static str>;
+                type Error = ::validation_errors::ValidationError;
 
                 #context_less_validation
                 #contextual_validation
