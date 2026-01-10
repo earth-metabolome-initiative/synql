@@ -12,7 +12,7 @@ impl ExternalCrate {
         ExternalCrate::new("rosetta_uuid")
             .unwrap()
             .git("https://github.com/earth-metabolome-initiative/emi-monorepo", "postgres-crate")
-            .features(["diesel", "serde"])
+            .features(["diesel", "serde", "sqlite"])
             .types([ExternalType::new(
                 syn::parse_quote!(::rosetta_uuid::diesel_impls::Uuid),
                 syn::parse_quote!(::rosetta_uuid::Uuid),
