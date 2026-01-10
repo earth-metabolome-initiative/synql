@@ -453,6 +453,48 @@ where
             .map(|c| c.generate_validation_impl(workspace, database))
             .collect()
     }
+
+    /// Generates the ancestral primary key column getter functions for this
+    /// table.
+    ///
+    /// # Implementative details
+    ///
+    /// The `diesel-builders` crate defines a `diesel_builders::GetColumn` trait
+    /// which is derived for each field in the table model struct. While it
+    /// would be ideal for the `diesel-builders`'s derive macro to also
+    /// generate getters for the ancestral primary key columns, since at the
+    /// context of the model struct generation the ancestral tables are not
+    /// known, we need to manually generate these getters here.
+    ///
+    /// # Arguments
+    ///
+    /// * `database` - The database where the table is defined.
+    /// * `workspace` - The workspace where the table is defined.
+    fn generate_ancestral_primary_key_column_getters<'db>(
+        &'db self,
+        database: &'db Self::DB,
+        workspace: &'db Workspace,
+    ) -> impl Iterator<Item = proc_macro2::TokenStream> + 'db {
+        self.ancestral_extended_tables(database).into_iter().flat_map(move |t| {
+            t.primary_key_columns(database).zip(self.primary_key_columns(database)).map(
+                move |(ancestor_pk_col, self_pk_col)| {
+                    let struct_ident = self.table_singular_camel_ident();
+                    let table_ident = self.table_snake_ident();
+                    let ancestor_table_ident = t.table_snake_ident();
+                    let ancestor_table_crate_ident = t.crate_ident(workspace);
+                    let ancestor_pk_col_ident = ancestor_pk_col.column_snake_ident();
+                    let self_pk_col_ident = self_pk_col.column_snake_ident();
+                    quote! {
+                        impl diesel_builders::GetColumn<#ancestor_table_crate_ident::#ancestor_table_ident::#ancestor_pk_col_ident> for #struct_ident {
+                            fn get_column_ref(&self) -> &<#table_ident::#self_pk_col_ident as diesel_builders::Typed>::ColumnType {
+                                &self.#self_pk_col_ident
+                            }
+                        }
+                    }
+                },
+            )
+        })
+    }
 }
 
 impl<T: TableLike> TableSynLike for T where <T::DB as DatabaseLike>::Column: ColumnSynLike {}

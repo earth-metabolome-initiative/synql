@@ -95,6 +95,8 @@ impl<DB: SynQLDatabaseLike> SynQL<'_, DB> {
         let unique_indices = table.unique_indices_macros(self.database);
         let foreign_keys = table.foreign_keys_macros(self.database, workspace);
         let check_constraint_impls = table.generate_validation_impls(workspace, self.database)?;
+        let ancestral_primary_key_column_getters =
+            table.generate_ancestral_primary_key_column_getters(self.database, workspace);
 
         let content = quote! {
             #allow_non_snake_case
@@ -116,6 +118,7 @@ impl<DB: SynQLDatabaseLike> SynQL<'_, DB> {
             #(#unique_indices)*
             #(#foreign_keys)*
             #(#check_constraint_impls)*
+            #(#ancestral_primary_key_column_getters)*
         };
 
         write!(buffer, "{content}")?;
