@@ -210,7 +210,7 @@ where
                 {
                     quote! {
                         if #column_ident.is_empty() {
-                            return Err(validation_errors::prelude::ValidationError::empty(crate::#table_ident::#column_ident::NAME));
+                            return Err(::validation_errors::ValidationError::empty(crate::#table_ident::#column_ident::NAME));
                         }
                     }
                 } else {
@@ -222,7 +222,7 @@ where
                 let float_value = self.parse_value(value, Some(self.workspace.f64())).0;
                 quote! {
                     if #column_ident > &#column_value {
-                        return Err(validation_errors::prelude::ValidationError::smaller_than_value(
+                        return Err(::validation_errors::ValidationError::smaller_than_value(
                             #table_name,
                             crate::#table_ident::#column_ident::NAME,
                             #float_value
@@ -235,7 +235,7 @@ where
                 let float_value = self.parse_value(value, Some(self.workspace.f64())).0;
                 quote! {
                     if #column_ident >= &#column_value {
-                        return Err(validation_errors::prelude::ValidationError::strictly_smaller_than_value(
+                        return Err(::validation_errors::ValidationError::strictly_smaller_than_value(
                             #table_name,
                             crate::#table_ident::#column_ident::NAME,
                             #float_value
@@ -248,7 +248,7 @@ where
                 let float_value = self.parse_value(value, Some(self.workspace.f64())).0;
                 quote! {
                     if #column_ident <= &#column_value {
-                        return Err(validation_errors::prelude::ValidationError::strictly_greater_than_value(
+                        return Err(::validation_errors::ValidationError::strictly_greater_than_value(
                             #table_name,
                             crate::#table_ident::#column_ident::NAME,
                             #float_value
@@ -261,7 +261,7 @@ where
                 let float_value = self.parse_value(value, Some(self.workspace.f64())).0;
                 quote! {
                     if #column_ident < &#column_value {
-                        return Err(validation_errors::prelude::ValidationError::greater_than_value(
+                        return Err(::validation_errors::ValidationError::greater_than_value(
                             #table_name,
                             crate::#table_ident::#column_ident::NAME,
                             #float_value
