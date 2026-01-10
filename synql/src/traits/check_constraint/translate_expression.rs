@@ -105,11 +105,12 @@ where
         let left_column = self.column(left);
         let right_column = self.column(right);
         let table_ident = self.table().table_snake_ident();
+        let table_name = self.table().table_name();
         let left_column_ident = left_column.column_snake_ident();
         let right_column_ident = right_column.column_snake_ident();
         let l_name = quote! { crate::#table_ident::#left_column_ident::NAME };
         let r_name = quote! { crate::#table_ident::#right_column_ident::NAME };
-        let validation_error = quote! { validation_errors::prelude::ValidationError };
+        let validation_error = quote! { ::validation_errors::ValidationError };
         let compare_op = |op: TokenStream| {
             match (
                 left_column.is_nullable(self.database) && !self.is_contextual_column(left_column),
@@ -150,7 +151,7 @@ where
                 let compare_op = compare_op(quote! {==});
                 quote! {
                     if #compare_op {
-                        return Err(#validation_error::equal(#l_name, #r_name));
+                        return Err(#validation_error::equal(#table_name, #l_name, #r_name));
                     }
                 }
             }
@@ -158,7 +159,7 @@ where
                 let compare_op = compare_op(quote! {>});
                 quote! {
                     if #compare_op {
-                        return Err(#validation_error::smaller_than(#l_name, #r_name));
+                        return Err(#validation_error::smaller_than(#table_name, #l_name, #r_name));
                     }
                 }
             }
@@ -166,7 +167,7 @@ where
                 let compare_op = compare_op(quote! {>=});
                 quote! {
                     if #compare_op {
-                        return Err(#validation_error::strictly_smaller_than(#l_name, #r_name));
+                        return Err(#validation_error::strictly_smaller_than(#table_name, #l_name, #r_name));
                     }
                 }
             }
@@ -174,7 +175,7 @@ where
                 let compare_op = compare_op(quote! {<=});
                 quote! {
                     if #compare_op {
-                        return Err(#validation_error::strictly_greater_than(#l_name, #r_name));
+                        return Err(#validation_error::strictly_greater_than(#table_name, #l_name, #r_name));
                     }
                 }
             }
@@ -182,7 +183,7 @@ where
                 let compare_op = compare_op(quote! {<});
                 quote! {
                     if #compare_op {
-                        return Err(#validation_error::greater_than(#l_name, #r_name));
+                        return Err(#validation_error::greater_than(#table_name, #l_name, #r_name));
                     }
                 }
             }
@@ -201,6 +202,7 @@ where
         let column = self.column(ident);
         let column_ident = column.column_snake_ident();
         let table_ident = self.table().table_snake_ident();
+        let table_name = self.table().table_name();
         match op {
             BinaryOperator::NotEq => {
                 if column.is_textual(self.database)
@@ -221,6 +223,7 @@ where
                 quote! {
                     if #column_ident > &#column_value {
                         return Err(validation_errors::prelude::ValidationError::smaller_than_value(
+                            #table_name,
                             crate::#table_ident::#column_ident::NAME,
                             #float_value
                         ));
@@ -233,6 +236,7 @@ where
                 quote! {
                     if #column_ident >= &#column_value {
                         return Err(validation_errors::prelude::ValidationError::strictly_smaller_than_value(
+                            #table_name,
                             crate::#table_ident::#column_ident::NAME,
                             #float_value
                         ));
@@ -245,6 +249,7 @@ where
                 quote! {
                     if #column_ident <= &#column_value {
                         return Err(validation_errors::prelude::ValidationError::strictly_greater_than_value(
+                            #table_name,
                             crate::#table_ident::#column_ident::NAME,
                             #float_value
                         ));
@@ -257,6 +262,7 @@ where
                 quote! {
                     if #column_ident < &#column_value {
                         return Err(validation_errors::prelude::ValidationError::greater_than_value(
+                            #table_name,
                             crate::#table_ident::#column_ident::NAME,
                             #float_value
                         ));

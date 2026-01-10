@@ -38,7 +38,7 @@ edition.workspace = true
         // If the table has check constraints, it will require the `validation_errors`
         // crate.
         if table.has_check_constraints(self.database) {
-            writeln!(buffer, "validation_errors.workspace = true")?;
+            writeln!(buffer, "validation-errors.workspace = true")?;
         }
 
         // The crate might have external dependencies relative to the types it uses

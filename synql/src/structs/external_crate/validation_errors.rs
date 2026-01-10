@@ -7,9 +7,9 @@ impl ExternalCrate {
     /// `validation_errors` crate.
     #[must_use]
     pub fn validation_errors() -> ExternalCrate {
-        ExternalCrate::new("validation_errors")
+        ExternalCrate::new("validation-errors")
             .unwrap()
-            .git("https://github.com/earth-metabolome-initiative/emi-monorepo", "postgres-crate")
+            .git("https://github.com/LucaCappelletti94/diesel-builders", "main")
             .into()
     }
 }
