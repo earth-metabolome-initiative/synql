@@ -210,7 +210,10 @@ where
                 {
                     quote! {
                         if #column_ident.is_empty() {
-                            return Err(::validation_errors::ValidationError::empty(crate::#table_ident::#column_ident::NAME));
+                            return Err(::validation_errors::ValidationError::empty(
+                                #table_name,
+                                crate::#table_ident::#column_ident::NAME
+                            ));
                         }
                     }
                 } else {
