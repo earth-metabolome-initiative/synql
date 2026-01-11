@@ -119,6 +119,18 @@ impl<DB: SynQLDatabaseLike> SynQL<'_, DB> {
             #(#foreign_keys)*
             #(#check_constraint_impls)*
             #(#ancestral_primary_key_column_getters)*
+
+            impl<C> From<#camel_case_name> for Box<dyn ::diesel_builders::GetColumn<C>>
+            where
+                C: ::diesel_builders::TypedColumn,
+                #camel_case_name: ::diesel_builders::GetColumn<C>,
+            {
+                fn from(value: #camel_case_name) -> Self {
+                    Box::new(value)
+                }
+            }
+
+
         };
 
         write!(buffer, "{content}")?;
