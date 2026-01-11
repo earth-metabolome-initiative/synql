@@ -56,9 +56,17 @@ pub trait CheckConstraintSynLike: CheckConstraintLike {
                 .map(|column| column.column_snake_ident())
                 .collect::<Vec<_>>();
             let table_ident = self.table(database).table_snake_ident();
-            quote! {
-                if let #(Some(#column_idents)),* = #(<Self as diesel_builders::MayGetColumn<#table_ident::#column_idents>>::may_get_column_ref(self)),* {
-                    #( #translated_expressions )*
+            if column_idents.len() == 1 {
+                quote! {
+                    if let #(Some(#column_idents)),* = #(<Self as diesel_builders::MayGetColumn<#table_ident::#column_idents>>::may_get_column_ref(self)),* {
+                        #( #translated_expressions )*
+                    }
+                }
+            } else {
+                quote! {
+                    if let (#(Some(#column_idents)),*) = (#(<Self as diesel_builders::MayGetColumn<#table_ident::#column_idents>>::may_get_column_ref(self)),*) {
+                        #( #translated_expressions )*
+                    }
                 }
             }
         }
