@@ -377,8 +377,8 @@ where
         indices
     }
 
-    /// Generates the `fk!` macro invocations for all foreign keys of this table
-    /// Returns the decorators for ancestral table lists.
+    /// Generates the decorators for the ancestral table list columns of this
+    /// table.
     ///
     /// # Arguments
     ///
