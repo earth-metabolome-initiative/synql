@@ -10,7 +10,7 @@ use heck::{ToSnakeCase, ToUpperCamelCase};
 use inflection_rs::inflection::singularize;
 use quote::quote;
 use sql_relations::{
-    prelude::UniqueIndexLike,
+    prelude::{ForeignKeyLike, UniqueIndexLike},
     traits::{
         HorizontalSameAsForeignKeyLike, TableListLike, TriangularSameAsForeignKeyLike,
         VerticalSameAsForeignKeyLike,
@@ -452,6 +452,37 @@ where
             .filter(|c| c.has_non_tautological_check_constraints(database))
             .map(|c| c.generate_validation_impl(workspace, database))
             .collect()
+    }
+
+    /// Generates the `#[diesel(belongs_to(Foo, foreign_key = mykey))]`
+    /// decorators for this table.
+    fn generate_belonging_to_decorators(
+        &self,
+        database: &Self::DB,
+        workspace: &Workspace,
+    ) -> Vec<proc_macro2::TokenStream> {
+        let mut decorators = Vec::new();
+        for foreign_key in self.foreign_keys(database) {
+            if foreign_key.is_composite(database) || !foreign_key.is_singleton(database) {
+                continue;
+            }
+            let host_column = foreign_key
+                .host_columns(database)
+                .next()
+                .expect("Expected at least one host column for non-composite foreign key")
+                .column_snake_ident();
+            let referenced_table = foreign_key.referenced_table(database);
+            let foreign_crate_ident = if foreign_key.is_self_referential(database) {
+                None
+            } else {
+                Some(referenced_table.crate_ident(workspace))
+            };
+            let foreign_table_ident = referenced_table.table_singular_camel_ident();
+            decorators.push(quote! {
+                #[diesel(belongs_to(#foreign_crate_ident::#foreign_table_ident, foreign_key = #host_column))]
+            });
+        }
+        decorators
     }
 
     /// Generates the ancestral primary key column getter functions for this

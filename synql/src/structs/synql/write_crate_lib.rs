@@ -11,6 +11,7 @@ use crate::{
 };
 
 impl<DB: SynQLDatabaseLike> SynQL<'_, DB> {
+    #[allow(clippy::too_many_lines)]
     pub(super) fn write_crate_lib(
         &self,
         table: &DB::Table,
@@ -95,19 +96,39 @@ impl<DB: SynQLDatabaseLike> SynQL<'_, DB> {
         let unique_indices = table.unique_indices_macros(self.database);
         let foreign_keys = table.foreign_keys_macros(self.database, workspace);
         let check_constraint_impls = table.generate_validation_impls(workspace, self.database)?;
+        let belonging_to_decorators =
+            table.generate_belonging_to_decorators(self.database, workspace);
         let ancestral_primary_key_column_getters =
             table.generate_ancestral_primary_key_column_getters(self.database, workspace);
+
+        let derive_associations = if belonging_to_decorators.is_empty() {
+            None
+        } else {
+            Some(quote! {
+                ::diesel::Associations,
+            })
+        };
 
         let content = quote! {
             #allow_non_snake_case
             #![doc=#crate_documentation]
 
             #[derive(#(#core_derives),*)]
-            #[derive(serde::Serialize, serde::Deserialize)]
-            #[derive(diesel::Queryable, diesel::Selectable, diesel::Identifiable, diesel_builders::prelude::TableModel)]
+            #[derive(::serde::Serialize, ::serde::Deserialize)]
+            #[derive(
+                ::diesel::Queryable,
+
+                ::diesel::Selectable,
+
+                ::diesel::Identifiable,
+
+                #derive_associations
+                ::diesel_builders::prelude::TableModel
+            )]
             #[doc=#struct_documentation]
             #ancestor_decorator
             #error_decorator
+            #(#belonging_to_decorators)*
             #primary_key_decorator
             #surrogate_key_decorator
             #(#ancestral_table_list_decorator)*
