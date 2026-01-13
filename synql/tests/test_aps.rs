@@ -13,8 +13,9 @@ use synql::prelude::*;
 fn test_aps() -> Result<(), Box<dyn std::error::Error>> {
     // We get the cargo toml.
     // And we adequately move to the emi-monorepo root.
-    let temp_dir = tempfile::tempdir()?;
-    let workspace_path = temp_dir.path();
+    // let temp_dir = tempfile::tempdir()?;
+    let temp_dir = "../../emi_local";
+    let workspace_path = std::path::Path::new(temp_dir);
     let db: ParserDB = ParserDB::from_git_url(
         "https://github.com/earth-metabolome-initiative/asset-procedure-schema.git",
     )?;

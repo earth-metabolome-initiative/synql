@@ -407,14 +407,14 @@ where
         }
     }
 
-    /// Returns the macros for the foreign keys of this table, excluding those
-    /// which are not already handled by same-as relations.
+    /// Returns the decorators for the foreign keys of this table, excluding
+    /// those which are not already handled by same-as relations.
     ///
     /// # Arguments
     ///
     /// * `database` - The database where the table is defined.
     /// * `workspace` - The workspace where the table is defined.
-    fn foreign_keys_macros(
+    fn foreign_key_decorators(
         &self,
         database: &Self::DB,
         workspace: &Workspace,

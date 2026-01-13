@@ -94,7 +94,7 @@ impl<DB: SynQLDatabaseLike> SynQL<'_, DB> {
 
         let fields = table.generate_struct_fields(workspace, self.database)?;
         let unique_indices = table.unique_indices_macros(self.database);
-        let foreign_keys = table.foreign_keys_macros(self.database, workspace);
+        let foreign_key_decorators = table.foreign_key_decorators(self.database, workspace);
         let check_constraint_impls = table.generate_validation_impls(workspace, self.database)?;
         let belonging_to_decorators =
             table.generate_belonging_to_decorators(self.database, workspace);
@@ -115,29 +115,20 @@ impl<DB: SynQLDatabaseLike> SynQL<'_, DB> {
 
             #[derive(#(#core_derives),*)]
             #[derive(::serde::Serialize, ::serde::Deserialize)]
-            #[derive(
-                ::diesel::Queryable,
-
-                ::diesel::Selectable,
-
-                ::diesel::Identifiable,
-
-                #derive_associations
-                ::diesel_builders::prelude::TableModel
-            )]
+            #[derive(::diesel::Queryable, ::diesel::Selectable, ::diesel::Identifiable, #derive_associations ::diesel_builders::prelude::TableModel)]
             #[doc=#struct_documentation]
             #ancestor_decorator
             #error_decorator
             #(#belonging_to_decorators)*
             #primary_key_decorator
             #surrogate_key_decorator
+            #(#foreign_key_decorators)*
             #(#ancestral_table_list_decorator)*
             #[diesel(table_name = #table_ident)]
             pub struct #camel_case_name {
                 #(#fields),*
             }
             #(#unique_indices)*
-            #(#foreign_keys)*
             #(#check_constraint_impls)*
             #(#ancestral_primary_key_column_getters)*
         };
