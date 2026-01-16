@@ -516,8 +516,8 @@ where
                     let ancestor_pk_col_ident = ancestor_pk_col.column_snake_ident();
                     let self_pk_col_ident = self_pk_col.column_snake_ident();
                     quote! {
-                        impl diesel_builders::GetColumn<#ancestor_table_crate_ident::#ancestor_table_ident::#ancestor_pk_col_ident> for #struct_ident {
-                            fn get_column_ref(&self) -> &<#table_ident::#self_pk_col_ident as diesel_builders::Typed>::ColumnType {
+                        impl ::diesel_builders::GetColumn<::#ancestor_table_crate_ident::#ancestor_table_ident::#ancestor_pk_col_ident> for #struct_ident {
+                            fn get_column_ref(&self) -> &<#table_ident::#self_pk_col_ident as ::diesel_builders::ColumnTyped>::ColumnType {
                                 &self.#self_pk_col_ident
                             }
                         }
