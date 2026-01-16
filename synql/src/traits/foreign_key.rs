@@ -2,8 +2,7 @@
 
 use proc_macro2::TokenStream;
 use quote::quote;
-use sql_traits::traits::{ColumnLike, ForeignKeyLike};
-use syn::Path;
+use sql_traits::traits::ForeignKeyLike;
 
 use crate::{
     structs::Workspace,
@@ -33,23 +32,9 @@ pub trait ForeignKeySynLike: ForeignKeyLike {
                 }
             })
             .collect::<Vec<syn::Path>>();
-        let foreign_table_ident: Path = if self.is_self_referential(database) {
-            foreign_table_ident.into()
-        } else {
-            syn::parse_quote!(::#foreign_table_crate_ident::#foreign_table_ident)
-        };
 
-        if !self.is_composite(database)
-            && let Some(first_host_column) = self.host_columns(database).next()
-            && first_host_column.non_composite_foreign_keys(database).count() == 1
-        {
-            quote! {
-                #[table_model(foreign_key(#(#host_column_paths)*, #foreign_table_ident))]
-            }
-        } else {
-            quote! {
-                #[table_model(foreign_key((#(#host_column_paths,)*), (#(#foreign_column_paths),*)))]
-            }
+        quote! {
+            #[table_model(foreign_key((#(#host_column_paths,)*), (#(#foreign_column_paths),*)))]
         }
     }
 }
