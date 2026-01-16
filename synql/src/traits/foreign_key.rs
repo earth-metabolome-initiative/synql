@@ -19,7 +19,7 @@ pub trait ForeignKeySynLike: ForeignKeyLike {
         let foreign_table_crate_ident = self.referenced_table(database).crate_ident(workspace);
         let host_column_paths = self
             .host_columns(database)
-            .map(|col| col.column_snake_ident())
+            .map(ColumnSynLike::column_snake_ident)
             .collect::<Vec<syn::Ident>>();
         let foreign_column_paths = self
             .referenced_columns(database)
