@@ -2,7 +2,9 @@
 
 use std::path::Path;
 
-use super::SynQL;
+use proc_macro2::TokenStream;
+
+use super::{Callback, SynQL};
 use crate::{structs::ExternalCrate, traits::SynQLDatabaseLike};
 
 /// Struct to build `SynQL` instances.
@@ -22,6 +24,7 @@ pub struct SynQLBuilder<'db, DB: SynQLDatabaseLike> {
     external_crates: Vec<ExternalCrate>,
     /// Additional workspace members.
     members: Vec<&'db Path>,
+    callbacks: Vec<Callback<'db, DB::Table>>,
 }
 
 impl<'db, DB: SynQLDatabaseLike> SynQLBuilder<'db, DB> {
@@ -44,6 +47,7 @@ impl<'db, DB: SynQLDatabaseLike> SynQLBuilder<'db, DB> {
             dag_sink_crate_prefix: None,
             external_crates: Vec::new(),
             members: Vec::new(),
+            callbacks: Vec::new(),
         }
     }
 
@@ -177,6 +181,16 @@ impl<'db, DB: SynQLDatabaseLike> SynQLBuilder<'db, DB> {
         }
         self
     }
+
+    /// Registers a callback to generate code for a given table.
+    #[must_use]
+    pub fn callback<F>(mut self, callback: F) -> Self
+    where
+        F: Fn(&DB::Table) -> Result<TokenStream, crate::Error> + 'db,
+    {
+        self.callbacks.push(Box::new(callback));
+        self
+    }
 }
 
 impl<'db, DB: SynQLDatabaseLike> From<SynQLBuilder<'db, DB>> for SynQL<'db, DB> {
@@ -196,6 +210,7 @@ impl<'db, DB: SynQLDatabaseLike> From<SynQLBuilder<'db, DB>> for SynQL<'db, DB> 
             dag_sink_crate_prefix: builder.dag_sink_crate_prefix,
             external_crates: builder.external_crates,
             members: builder.members,
+            callbacks: builder.callbacks,
         }
     }
 }

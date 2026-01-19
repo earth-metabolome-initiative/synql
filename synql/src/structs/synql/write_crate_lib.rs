@@ -101,6 +101,11 @@ impl<DB: SynQLDatabaseLike> SynQL<'_, DB> {
         let ancestral_primary_key_column_getters =
             table.generate_ancestral_primary_key_column_getters(self.database, workspace);
 
+        let mut extra_implementations = Vec::new();
+        for callback in &self.callbacks {
+            extra_implementations.push(callback(table)?);
+        }
+
         let derive_associations = if belonging_to_decorators.is_empty() {
             None
         } else {
@@ -131,6 +136,7 @@ impl<DB: SynQLDatabaseLike> SynQL<'_, DB> {
             #(#unique_indices)*
             #(#check_constraint_impls)*
             #(#ancestral_primary_key_column_getters)*
+            #(#extra_implementations)*
         };
 
         write!(buffer, "{content}")?;

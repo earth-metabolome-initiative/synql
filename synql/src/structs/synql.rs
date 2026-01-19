@@ -3,6 +3,8 @@
 
 use std::path::Path;
 
+use proc_macro2::TokenStream;
+
 mod builder;
 mod write_crate_lib;
 mod write_crate_toml;
@@ -16,6 +18,10 @@ use crate::{
     structs::{ExternalCrate, Workspace, external_crate::MaximalNumberOfColumns},
     traits::{SynQLDatabaseLike, table::TableSynLike},
 };
+
+/// Type alias for the callback function used to generate additional code for
+/// tables.
+pub type Callback<'db, T> = Box<dyn Fn(&T) -> Result<TokenStream, crate::Error> + 'db>;
 
 /// Struct representing a SQL workspace.
 pub struct SynQL<'db, DB: SynQLDatabaseLike> {
@@ -48,6 +54,8 @@ pub struct SynQL<'db, DB: SynQLDatabaseLike> {
     clear_existing: bool,
     /// Additional workspace members.
     members: Vec<&'db Path>,
+    /// Callbacks to generate additional code for each table.
+    callbacks: Vec<Callback<'db, DB::Table>>,
 }
 
 impl<'db, DB: SynQLDatabaseLike> SynQL<'db, DB> {
