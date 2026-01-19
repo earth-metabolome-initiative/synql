@@ -191,7 +191,7 @@ impl<'db, DB: SynQLDatabaseLike> SynQLBuilder<'db, DB> {
     #[must_use]
     pub fn callback<F>(mut self, callback: F) -> Self
     where
-        F: Fn(&DB::Table, &DB, &Workspace) -> Result<TokenStream, crate::Error> + 'db,
+        F: Fn(&DB::Table, &DB, &Workspace) -> Result<Option<TokenStream>, crate::Error> + 'db,
     {
         self.callbacks.push(Box::new(callback));
         self
@@ -202,7 +202,7 @@ impl<'db, DB: SynQLDatabaseLike> SynQLBuilder<'db, DB> {
     #[must_use]
     pub fn toml_callback<F>(mut self, callback: F) -> Self
     where
-        F: Fn(&DB::Table, &DB) -> Result<TomlDependency, crate::Error> + 'db,
+        F: Fn(&DB::Table, &DB) -> Result<Option<TomlDependency>, crate::Error> + 'db,
     {
         self.toml_callbacks.push(Box::new(callback));
         self

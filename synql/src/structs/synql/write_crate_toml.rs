@@ -78,7 +78,9 @@ edition.workspace = true
         }
 
         for callback in &self.toml_callbacks {
-            writeln!(buffer, "{}", callback(table, self.database)?)?;
+            if let Some(dependency) = callback(table, self.database)? {
+                writeln!(buffer, "{dependency}")?;
+            }
         }
 
         // Linting

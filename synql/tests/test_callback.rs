@@ -12,13 +12,13 @@ fn test_callback_generation() -> Result<(), Box<dyn std::error::Error>> {
 
     let synql: SynQL<ParserDB> = SynQL::new(&db, &workspace_path)
         .callback(|_table, _db, _workspace| {
-            Ok(quote! {
+            Ok(Some(quote! {
                 pub fn hello_world() -> &'static str {
                     "Hello, World!"
                 }
-            })
+            }))
         })
-        .toml_callback(|_table, _db| Ok(TomlDependency::new("extra-dep").version("1.0.0")))
+        .toml_callback(|_table, _db| Ok(Some(TomlDependency::new("extra-dep").version("1.0.0"))))
         .into();
 
     synql.generate()?;

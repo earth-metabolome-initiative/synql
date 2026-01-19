@@ -22,12 +22,12 @@ use crate::{
 /// Type alias for the callback function used to generate additional code for
 /// tables.
 pub type Callback<'db, T, D> =
-    Box<dyn Fn(&T, &D, &Workspace) -> Result<TokenStream, crate::Error> + 'db>;
+    Box<dyn Fn(&T, &D, &Workspace) -> Result<Option<TokenStream>, crate::Error> + 'db>;
 
 /// Type alias for the callback function used to generate additional
 /// dependencies for tables.
 pub type TomlCallback<'db, T, D> =
-    Box<dyn Fn(&T, &D) -> Result<TomlDependency, crate::Error> + 'db>;
+    Box<dyn Fn(&T, &D) -> Result<Option<TomlDependency>, crate::Error> + 'db>;
 
 /// Struct representing a SQL workspace.
 pub struct SynQL<'db, DB: SynQLDatabaseLike> {
