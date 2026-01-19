@@ -21,7 +21,7 @@ use crate::{
 
 /// Type alias for the callback function used to generate additional code for
 /// tables.
-pub type Callback<'db, T> = Box<dyn Fn(&T) -> Result<TokenStream, crate::Error> + 'db>;
+pub type Callback<'db, T, D> = Box<dyn Fn(&T, &D) -> Result<TokenStream, crate::Error> + 'db>;
 
 /// Struct representing a SQL workspace.
 pub struct SynQL<'db, DB: SynQLDatabaseLike> {
@@ -55,7 +55,7 @@ pub struct SynQL<'db, DB: SynQLDatabaseLike> {
     /// Additional workspace members.
     members: Vec<&'db Path>,
     /// Callbacks to generate additional code for each table.
-    callbacks: Vec<Callback<'db, DB::Table>>,
+    callbacks: Vec<Callback<'db, DB::Table, DB>>,
 }
 
 impl<'db, DB: SynQLDatabaseLike> SynQL<'db, DB> {

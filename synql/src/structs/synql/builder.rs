@@ -24,7 +24,7 @@ pub struct SynQLBuilder<'db, DB: SynQLDatabaseLike> {
     external_crates: Vec<ExternalCrate>,
     /// Additional workspace members.
     members: Vec<&'db Path>,
-    callbacks: Vec<Callback<'db, DB::Table>>,
+    callbacks: Vec<Callback<'db, DB::Table, DB>>,
 }
 
 impl<'db, DB: SynQLDatabaseLike> SynQLBuilder<'db, DB> {
@@ -186,7 +186,7 @@ impl<'db, DB: SynQLDatabaseLike> SynQLBuilder<'db, DB> {
     #[must_use]
     pub fn callback<F>(mut self, callback: F) -> Self
     where
-        F: Fn(&DB::Table) -> Result<TokenStream, crate::Error> + 'db,
+        F: Fn(&DB::Table, &DB) -> Result<TokenStream, crate::Error> + 'db,
     {
         self.callbacks.push(Box::new(callback));
         self

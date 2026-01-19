@@ -11,7 +11,7 @@ fn test_callback_generation() -> Result<(), Box<dyn std::error::Error>> {
     let workspace_path = temp_dir.path().join("synql_workspace");
 
     let synql: SynQL<ParserDB> = SynQL::new(&db, &workspace_path)
-        .callback(|_table| {
+        .callback(|_table, _db| {
             Ok(quote! {
                 pub fn hello_world() -> &'static str {
                     "Hello, World!"
