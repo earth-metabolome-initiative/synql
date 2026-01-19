@@ -4,8 +4,11 @@ use std::path::Path;
 
 use proc_macro2::TokenStream;
 
-use super::{Callback, SynQL};
-use crate::{structs::ExternalCrate, traits::SynQLDatabaseLike};
+use super::{Callback, SynQL, TomlCallback};
+use crate::{
+    structs::{ExternalCrate, TomlDependency, Workspace},
+    traits::SynQLDatabaseLike,
+};
 
 /// Struct to build `SynQL` instances.
 pub struct SynQLBuilder<'db, DB: SynQLDatabaseLike> {
@@ -25,6 +28,7 @@ pub struct SynQLBuilder<'db, DB: SynQLDatabaseLike> {
     /// Additional workspace members.
     members: Vec<&'db Path>,
     callbacks: Vec<Callback<'db, DB::Table, DB>>,
+    toml_callbacks: Vec<TomlCallback<'db, DB::Table, DB>>,
 }
 
 impl<'db, DB: SynQLDatabaseLike> SynQLBuilder<'db, DB> {
@@ -48,6 +52,7 @@ impl<'db, DB: SynQLDatabaseLike> SynQLBuilder<'db, DB> {
             external_crates: Vec::new(),
             members: Vec::new(),
             callbacks: Vec::new(),
+            toml_callbacks: Vec::new(),
         }
     }
 
@@ -186,9 +191,20 @@ impl<'db, DB: SynQLDatabaseLike> SynQLBuilder<'db, DB> {
     #[must_use]
     pub fn callback<F>(mut self, callback: F) -> Self
     where
-        F: Fn(&DB::Table, &DB) -> Result<TokenStream, crate::Error> + 'db,
+        F: Fn(&DB::Table, &DB, &Workspace) -> Result<TokenStream, crate::Error> + 'db,
     {
         self.callbacks.push(Box::new(callback));
+        self
+    }
+
+    /// Registers a callback to generate additional dependencies for a given
+    /// table.
+    #[must_use]
+    pub fn toml_callback<F>(mut self, callback: F) -> Self
+    where
+        F: Fn(&DB::Table, &DB) -> Result<TomlDependency, crate::Error> + 'db,
+    {
+        self.toml_callbacks.push(Box::new(callback));
         self
     }
 }
@@ -211,6 +227,7 @@ impl<'db, DB: SynQLDatabaseLike> From<SynQLBuilder<'db, DB>> for SynQL<'db, DB> 
             external_crates: builder.external_crates,
             members: builder.members,
             callbacks: builder.callbacks,
+            toml_callbacks: builder.toml_callbacks,
         }
     }
 }

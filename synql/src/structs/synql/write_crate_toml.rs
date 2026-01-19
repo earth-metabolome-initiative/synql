@@ -77,6 +77,10 @@ edition.workspace = true
             writeln!(buffer, "{dep_crate_name}.workspace = true")?;
         }
 
+        for callback in &self.toml_callbacks {
+            writeln!(buffer, "{}", callback(table, self.database)?)?;
+        }
+
         // Linting
         writeln!(buffer, "\n[lints]")?;
         writeln!(buffer, "workspace = true")?;

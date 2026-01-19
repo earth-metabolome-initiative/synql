@@ -16,3 +16,5 @@ mod external_function;
 pub use external_function::ExternalFunction;
 mod errors;
 pub use errors::Error;
+mod toml_dependency;
+pub use toml_dependency::TomlDependency;

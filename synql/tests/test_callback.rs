@@ -11,13 +11,14 @@ fn test_callback_generation() -> Result<(), Box<dyn std::error::Error>> {
     let workspace_path = temp_dir.path().join("synql_workspace");
 
     let synql: SynQL<ParserDB> = SynQL::new(&db, &workspace_path)
-        .callback(|_table, _db| {
+        .callback(|_table, _db, _workspace| {
             Ok(quote! {
                 pub fn hello_world() -> &'static str {
                     "Hello, World!"
                 }
             })
         })
+        .toml_callback(|_table, _db| Ok(TomlDependency::new("extra-dep").version("1.0.0")))
         .into();
 
     synql.generate()?;
@@ -37,8 +38,12 @@ fn test_callback_generation() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
 
-    let content = std::fs::read_to_string(lib_rs_path)?;
+    let content = std::fs::read_to_string(lib_rs_path.clone())?;
     assert!(content.contains("pub fn hello_world"));
+
+    let cargo_toml_path = lib_rs_path.parent().unwrap().parent().unwrap().join("Cargo.toml");
+    let content = std::fs::read_to_string(cargo_toml_path)?;
+    assert!(content.contains("extra-dep = { version = \"1.0.0\" }"));
 
     Ok(())
 }

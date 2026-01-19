@@ -103,7 +103,7 @@ impl<DB: SynQLDatabaseLike> SynQL<'_, DB> {
 
         let mut extra_implementations = Vec::new();
         for callback in &self.callbacks {
-            extra_implementations.push(callback(table, self.database)?);
+            extra_implementations.push(callback(table, self.database, workspace)?);
         }
 
         let derive_associations = if belonging_to_decorators.is_empty() {

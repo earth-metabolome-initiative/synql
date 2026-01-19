@@ -15,13 +15,19 @@ use sql_relations::prelude::TableLike;
 use time_requirements::{prelude::TimeTracker, task::Task};
 
 use crate::{
-    structs::{ExternalCrate, Workspace, external_crate::MaximalNumberOfColumns},
+    structs::{ExternalCrate, TomlDependency, Workspace, external_crate::MaximalNumberOfColumns},
     traits::{SynQLDatabaseLike, table::TableSynLike},
 };
 
 /// Type alias for the callback function used to generate additional code for
 /// tables.
-pub type Callback<'db, T, D> = Box<dyn Fn(&T, &D) -> Result<TokenStream, crate::Error> + 'db>;
+pub type Callback<'db, T, D> =
+    Box<dyn Fn(&T, &D, &Workspace) -> Result<TokenStream, crate::Error> + 'db>;
+
+/// Type alias for the callback function used to generate additional
+/// dependencies for tables.
+pub type TomlCallback<'db, T, D> =
+    Box<dyn Fn(&T, &D) -> Result<TomlDependency, crate::Error> + 'db>;
 
 /// Struct representing a SQL workspace.
 pub struct SynQL<'db, DB: SynQLDatabaseLike> {
@@ -56,6 +62,8 @@ pub struct SynQL<'db, DB: SynQLDatabaseLike> {
     members: Vec<&'db Path>,
     /// Callbacks to generate additional code for each table.
     callbacks: Vec<Callback<'db, DB::Table, DB>>,
+    /// Callbacks to generate additional dependencies for each table.
+    toml_callbacks: Vec<TomlCallback<'db, DB::Table, DB>>,
 }
 
 impl<'db, DB: SynQLDatabaseLike> SynQL<'db, DB> {
