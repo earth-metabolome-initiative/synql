@@ -63,3 +63,25 @@ let synql: SynQL<ParserDB> = SynQL::new(&db, output_dir.path())
  
 synql.generate().expect("Unable to generate workspace");
 ```
+
+## Running Examples
+
+Run the README example:
+
+```bash
+cargo run -p synql --example readme
+```
+
+Run the observable example (writes inputs/outputs to a gitignored directory):
+
+```bash
+cargo run -p synql --example observable
+```
+
+Generated files are written to `synql/examples/generated_schema/` (gitignored).
+
+Format all generated Rust files:
+
+```bash
+cargo fmt --manifest-path synql/examples/generated_schema/output/Cargo.toml --all
+```
