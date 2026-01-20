@@ -56,6 +56,7 @@ impl ExternalCrate {
             .feature("extras")
             .features(number_of_columns.as_diesel_feature_str())
             .git("https://github.com/LucaCappelletti94/diesel", "future3")
+            .unwrap()
             .types([
                 ExternalType::new(
                     syn::parse_quote!(::diesel::sql_types::Interval),

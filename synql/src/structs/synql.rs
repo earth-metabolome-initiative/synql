@@ -59,7 +59,7 @@ pub struct SynQL<'db, DB: SynQLDatabaseLike> {
     /// Whether to clear workspace directory if it already exists.
     clear_existing: bool,
     /// Additional workspace members.
-    members: Vec<&'db Path>,
+    members: Vec<TomlDependency>,
     /// Callbacks to generate additional code for each table.
     callbacks: Vec<Callback<'db, DB::Table, DB>>,
     /// Callbacks to generate additional dependencies for each table.
@@ -118,7 +118,11 @@ impl<'db, DB: SynQLDatabaseLike> SynQL<'db, DB> {
             if wrote {
                 write!(buffer, ", ")?;
             }
-            write!(buffer, "\"{}\"", member.display())?;
+            if let Some(path) = member.get_path() {
+                write!(buffer, "\"{path}\"")?;
+            } else {
+                return Err(std::io::Error::other("Workspace member MUST start with a path"));
+            }
             wrote = true;
         }
 
@@ -170,6 +174,10 @@ impl<'db, DB: SynQLDatabaseLike> SynQL<'db, DB> {
 
         // Write [workspace.dependencies] section
         writeln!(buffer, "[workspace.dependencies]")?;
+
+        for member in &self.members {
+            writeln!(buffer, "{member}")?;
+        }
 
         // Write internal crate dependencies
         for table in self.database.tables() {

@@ -25,6 +25,7 @@ impl ExternalCrate {
             ])
             .unwrap()
             .git("https://github.com/LucaCappelletti94/postgis-diesel", "master")
+            .unwrap()
             .into()
     }
 }

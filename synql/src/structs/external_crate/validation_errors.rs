@@ -10,6 +10,7 @@ impl ExternalCrate {
         ExternalCrate::new("validation-errors")
             .unwrap()
             .git("https://github.com/LucaCappelletti94/diesel-builders", "main")
+            .unwrap()
             .into()
     }
 }

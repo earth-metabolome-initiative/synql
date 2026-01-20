@@ -12,6 +12,7 @@ impl ExternalCrate {
         ExternalCrate::new("rosetta_timestamp")
             .unwrap()
             .git("https://github.com/earth-metabolome-initiative/emi-monorepo", "postgres-crate")
+            .unwrap()
             .features(["diesel", "serde", "sqlite"])
             .types([ExternalType::new(
                 syn::parse_quote!(::rosetta_timestamp::diesel_impls::TimestampUTC),

@@ -8,7 +8,7 @@ use quote::ToTokens;
 use syn::Type;
 
 use crate::structs::{
-    ExternalFunction, ExternalFunctionRef, ExternalType, ExternalTypeRef,
+    ExternalFunction, ExternalFunctionRef, ExternalType, ExternalTypeRef, TomlDependency,
     external_crate::builder::ExternalCrateBuilderError,
 };
 mod builder;
@@ -30,19 +30,13 @@ pub use diesel_crate::MaximalNumberOfColumns;
 /// Struct defining the crate required by some type found in the postgres
 /// database schema.
 pub struct ExternalCrate {
-    /// The name of the crate.
-    name: String,
+    /// The TOML dependency of the crate.
+    dependency: TomlDependency,
     /// List of postgres types and their corresponding diesel and rust types
     /// defined within the crate.
     types: Vec<ExternalType>,
     /// Methods defined within the crate.
     functions: Vec<ExternalFunction>,
-    /// Whether the crate is a dependency.
-    version: Option<String>,
-    /// Git to the crate, if it is a local dependency.
-    git: Option<(String, String)>,
-    /// Feature flags required by the crate.
-    features: Vec<String>,
 }
 
 impl PartialOrd for ExternalCrate {
@@ -53,7 +47,7 @@ impl PartialOrd for ExternalCrate {
 
 impl Ord for ExternalCrate {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        self.name.cmp(&other.name)
+        self.name().cmp(other.name())
     }
 }
 
@@ -73,21 +67,21 @@ impl ExternalCrate {
     #[inline]
     #[must_use]
     pub fn name(&self) -> &str {
-        &self.name
+        self.dependency.name()
     }
 
     /// Returns true if the crate is a dependency.
     #[inline]
     #[must_use]
     pub fn is_dependency(&self) -> bool {
-        self.version.is_some() || self.git.is_some()
+        self.dependency.get_version().is_some() || self.dependency.get_git().is_some()
     }
 
     /// Returns the version of the crate if it is a dependency.
     #[inline]
     #[must_use]
     pub fn version(&self) -> Option<&str> {
-        self.version.as_deref()
+        self.dependency.get_version()
     }
 
     /// Returns the git repository and branch of the crate if it is a
@@ -95,14 +89,16 @@ impl ExternalCrate {
     #[inline]
     #[must_use]
     pub fn git(&self) -> Option<(&str, &str)> {
-        self.git.as_ref().map(|(repo, branch)| (repo.as_str(), branch.as_str()))
+        self.dependency
+            .get_git()
+            .map(|repo| (repo, self.dependency.get_branch().unwrap_or_default()))
     }
 
     /// Returns the feature flags required by the crate.
     #[inline]
     #[must_use]
     pub fn features(&self) -> &[String] {
-        &self.features
+        self.dependency.features()
     }
 
     /// Returns the external type with the provided name, if any.

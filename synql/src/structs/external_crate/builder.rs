@@ -2,20 +2,16 @@
 
 use std::fmt::Display;
 
-use crate::structs::{ExternalCrate, ExternalFunction, ExternalType};
+use crate::{
+    Error,
+    structs::{ExternalCrate, ExternalFunction, ExternalType, TomlDependency},
+};
 
 /// Builder for the `ExternalCrate` struct.
 pub struct ExternalCrateBuilder {
-    /// The name of the crate.
-    name: String,
+    dependency: TomlDependency,
     /// The types provided by the crate.
     types: Vec<ExternalType>,
-    /// The version of the crate if it is a dependency.
-    version: Option<String>,
-    /// Git to the crate, if it is a GitHub dependency.
-    git: Option<(String, String)>,
-    /// The feature flags required by the crate.
-    features: Vec<String>,
     /// The functions provided by the crate.
     functions: Vec<ExternalFunction>,
 }
@@ -31,14 +27,7 @@ impl ExternalCrateBuilder {
         if name.trim().is_empty() || name.contains(' ') {
             return Err(ExternalCrateBuilderError::InvalidName);
         }
-        Ok(Self {
-            name: name.to_string(),
-            types: Vec::new(),
-            version: None,
-            features: Vec::new(),
-            functions: Vec::new(),
-            git: None,
-        })
+        Ok(Self { dependency: TomlDependency::new(name), types: Vec::new(), functions: Vec::new() })
     }
 }
 
@@ -120,17 +109,25 @@ impl ExternalCrateBuilder {
     }
 
     /// Sets whether the crate is a dependency.
-    #[must_use]
-    pub fn version<S: ToString + ?Sized>(mut self, version: &S) -> Self {
-        self.version = Some(version.to_string());
-        self
+    ///
+    /// # Errors
+    ///
+    /// Returns `Error::InvalidTomlDependency` if the dependency is a workspace
+    /// dependency.
+    pub fn version<S: ToString + ?Sized>(mut self, version: &S) -> Result<Self, Error> {
+        self.dependency = self.dependency.version(version.to_string())?;
+        Ok(self)
     }
 
     /// Sets the git to the crate, if it is a local dependency.
-    #[must_use]
-    pub fn git<S: ToString + ?Sized>(mut self, repository: &S, branch: &S) -> Self {
-        self.git = Some((repository.to_string(), branch.to_string()));
-        self
+    ///
+    /// # Errors
+    ///
+    /// Returns `Error::InvalidTomlDependency` if the dependency is a workspace
+    /// dependency.
+    pub fn git<S: ToString + ?Sized>(mut self, repository: &S, branch: &S) -> Result<Self, Error> {
+        self.dependency = self.dependency.git(repository.to_string(), Some(branch.to_string()))?;
+        Ok(self)
     }
 
     /// Adds a feature to the crate.
@@ -139,10 +136,7 @@ impl ExternalCrateBuilder {
     /// * `feature` - The feature to add.
     #[must_use]
     pub fn feature<S: ToString + ?Sized>(mut self, feature: &S) -> Self {
-        let feature = feature.to_string();
-        if !self.features.contains(&feature) {
-            self.features.push(feature);
-        }
+        self.dependency = self.dependency.feature(feature.to_string());
         self
     }
 
@@ -193,11 +187,8 @@ impl ExternalCrateBuilder {
 impl From<ExternalCrateBuilder> for ExternalCrate {
     fn from(value: ExternalCrateBuilder) -> Self {
         ExternalCrate {
-            name: value.name,
+            dependency: value.dependency,
             types: value.types,
-            version: value.version,
-            git: value.git,
-            features: value.features,
             functions: value.functions,
         }
     }

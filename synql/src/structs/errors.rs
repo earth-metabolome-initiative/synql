@@ -27,4 +27,7 @@ pub enum Error {
     #[error("I/O error: {0}")]
     /// I/O error.
     IO(#[from] std::io::Error),
+    #[error("Invalid TOML dependency: {0}")]
+    /// Invalid TOML dependency error.
+    InvalidTomlDependency(String),
 }

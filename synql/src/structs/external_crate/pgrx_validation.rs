@@ -26,6 +26,7 @@ impl ExternalCrate {
                 ),
             ])
             .git("https://github.com/earth-metabolome-initiative/emi-monorepo", "postgres-crate")
+            .unwrap()
             .into()
     }
 }

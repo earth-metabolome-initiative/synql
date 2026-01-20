@@ -11,6 +11,7 @@ impl ExternalCrate {
         ExternalCrate::new("chrono")
             .unwrap()
             .version("0.4.42")
+            .unwrap()
             .feature("serde")
             .types([
                 ExternalType::new(

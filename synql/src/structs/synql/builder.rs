@@ -26,7 +26,7 @@ pub struct SynQLBuilder<'db, DB: SynQLDatabaseLike> {
     dag_sink_crate_prefix: Option<String>,
     external_crates: Vec<ExternalCrate>,
     /// Additional workspace members.
-    members: Vec<&'db Path>,
+    members: Vec<TomlDependency>,
     callbacks: Vec<Callback<'db, DB::Table, DB>>,
     toml_callbacks: Vec<TomlCallback<'db, DB::Table, DB>>,
 }
@@ -157,32 +157,29 @@ impl<'db, DB: SynQLDatabaseLike> SynQLBuilder<'db, DB> {
         self
     }
 
-    /// Adds a member path to the workspace.
+    /// Adds a member to the workspace.
     ///
     /// # Arguments
-    /// * `member` - The member path to add.
+    /// * `member` - The member to add.
     #[must_use]
-    pub fn member<S: AsRef<Path> + ?Sized>(mut self, member: &'db S) -> Self {
-        if !self.members.contains(&member.as_ref()) {
-            self.members.push(member.as_ref());
+    pub fn member(mut self, member: TomlDependency) -> Self {
+        if !self.members.iter().any(|m| m.name() == member.name()) {
+            self.members.push(member);
         }
         self
     }
 
-    /// Adds several member paths to the workspace.
+    /// Adds several members to the workspace.
     ///
     /// # Arguments
-    /// * `members` - The member paths to add.
+    /// * `members` - The members to add.
     #[must_use]
-    pub fn members<I, S>(mut self, members: I) -> Self
+    pub fn members<I>(mut self, members: I) -> Self
     where
-        I: IntoIterator<Item = &'db S> + 'db,
-        S: AsRef<Path> + ?Sized + 'db,
+        I: IntoIterator<Item = TomlDependency>,
     {
         for member in members {
-            if !self.members.contains(&member.as_ref()) {
-                self.members.push(member.as_ref());
-            }
+            self = self.member(member);
         }
         self
     }

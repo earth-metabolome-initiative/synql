@@ -12,6 +12,7 @@ impl ExternalCrate {
         ExternalCrate::new("serde_json")
             .unwrap()
             .version("1.0")
+            .unwrap()
             .types([
                 ExternalType::new(
                     syn::parse_quote!(::diesel::sql_types::Json),

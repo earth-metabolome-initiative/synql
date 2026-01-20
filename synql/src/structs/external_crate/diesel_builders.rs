@@ -25,6 +25,7 @@ impl ExternalCrate {
             .unwrap()
             .features(number_of_columns.as_diesel_builders_feature())
             .git("https://github.com/LucaCappelletti94/diesel-builders", "main")
+            .unwrap()
             .into()
     }
 }
