@@ -61,7 +61,9 @@ edition.workspace = true
             .referenced_tables(self.database)
             .into_iter()
             .chain(table.ancestral_extended_tables(self.database))
+            .chain(table.spouses(self.database).filter(|spouse| table < *spouse))
             .collect::<Vec<_>>();
+
         dependencies.sort_unstable();
         dependencies.dedup();
 

@@ -299,7 +299,7 @@ dependencies = [
 [[package]]
 name = "geometric-traits"
 version = "0.1.0"
-source = "git+https://github.com/earth-metabolome-initiative/geometric-traits?branch=main#b4b55cb80b20cedc1f977f7abe9f45b6852ee502"
+source = "git+https://github.com/earth-metabolome-initiative/geometric-traits?branch=main#0e60445b1a9394f4fcd2b413991d2a941a06dfc1"
 dependencies = [
  "lender",
  "multi_ranged",
@@ -913,7 +913,7 @@ dependencies = [
 [[package]]
 name = "sql-traits"
 version = "0.1.0"
-source = "git+https://github.com/earth-metabolome-initiative/sql-traits?branch=main#bcf52ac9ee43e0614fa2c1c017df93138e68a17b"
+source = "git+https://github.com/earth-metabolome-initiative/sql-traits?branch=main#6d638a16c8e7b2a620002087e7725a77d2ca2767"
 dependencies = [
  "geometric-traits",
  "git2",
@@ -1095,18 +1095,18 @@ dependencies = [
 
 [[package]]
 name = "thiserror"
-version = "2.0.17"
+version = "2.0.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f63587ca0f12b72a0600bcba1d40081f830876000bb46dd2337a3051618f4fc8"
+checksum = "4288b5bcbc7920c07a1149a35cf9590a2aa808e0bc1eafaade0b80947865fbc4"
 dependencies = [
  "thiserror-impl",
 ]
 
 [[package]]
 name = "thiserror-impl"
-version = "2.0.17"
+version = "2.0.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3ff15c8ecd7de3849db632e14d18d2571fa09dfc5ed93479bc4485c7a517c913"
+checksum = "ebc4ee7f67670e9b64d05fa4253e753e016c6c95ff35b89b7941d6b856dec1d5"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1494,6 +1494,6 @@ dependencies = [
 
 [[package]]
 name = "zmij"
-version = "1.0.14"
+version = "1.0.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bd8f3f50b848df28f887acb68e41201b5aea6bc8a8dacc00fb40635ff9a72fea"
+checksum = "dfcd145825aace48cff44a8844de64bf75feec3080e0aa5cdbde72961ae51a65"
