@@ -51,6 +51,12 @@ impl Ord for ExternalCrate {
     }
 }
 
+impl AsRef<TomlDependency> for ExternalCrate {
+    fn as_ref(&self) -> &TomlDependency {
+        &self.dependency
+    }
+}
+
 impl ExternalCrate {
     /// Inizializes a new `ExternalCrateBuilder`.
     ///

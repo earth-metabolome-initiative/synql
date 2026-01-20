@@ -21,7 +21,7 @@ use strum::IntoEnumIterator;
 use syn::Ident;
 
 use crate::{
-    structs::{ExternalCrate, Trait, Workspace},
+    structs::{ExternalCrate, TomlDependency, Trait, Workspace},
     traits::{
         ColumnSynLike, UniqueIndexSynLike, foreign_key::ForeignKeySynLike,
         function::FunctionSynLike,
@@ -73,6 +73,22 @@ where
     #[must_use]
     fn crate_relative_path(&self, workspace: &Workspace) -> PathBuf {
         workspace.crate_base_path().join(self.crate_name(workspace))
+    }
+
+    /// Returns the dependency of the crate associated with this table.
+    ///
+    /// # Arguments
+    ///
+    /// * `workspace` - The workspace where the crate is defined.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the path cannot be set.
+    #[must_use]
+    fn crate_dependency(&self, workspace: &Workspace) -> TomlDependency {
+        TomlDependency::new(self.crate_name(workspace))
+            .path(self.crate_relative_path(workspace).display().to_string())
+            .expect("Should be able to set path")
     }
 
     /// Returns the ident of this table, with no normalization applied.

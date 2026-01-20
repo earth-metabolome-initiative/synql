@@ -184,12 +184,7 @@ impl<'db, DB: SynQLDatabaseLike> SynQL<'db, DB> {
             if self.skip_table(table) {
                 continue;
             }
-            writeln!(
-                buffer,
-                "{crate_name} = {{ path = \"{crate_path}\" }}",
-                crate_name = table.crate_name(workspace),
-                crate_path = table.crate_relative_path(workspace).display(),
-            )?;
+            writeln!(buffer, "{}", table.crate_dependency(workspace))?;
         }
 
         // Write external dependencies
@@ -198,29 +193,7 @@ impl<'db, DB: SynQLDatabaseLike> SynQL<'db, DB> {
                 continue;
             }
 
-            let dep_name = external_crate.name();
-            write!(buffer, "{dep_name} = {{ ")?;
-
-            let mut parts = Vec::new();
-
-            if let Some(version) = external_crate.version() {
-                parts.push(format!("version = \"{version}\""));
-            }
-
-            if let Some((repository, branch)) = external_crate.git() {
-                parts.push(format!("git = \"{repository}\""));
-                parts.push(format!("branch = \"{branch}\""));
-            }
-
-            let features = external_crate.features();
-            if !features.is_empty() {
-                let features_str =
-                    features.iter().map(|f| format!("\"{f}\"")).collect::<Vec<_>>().join(", ");
-                parts.push(format!("features = [{features_str}]"));
-            }
-
-            write!(buffer, "{}", parts.join(", "))?;
-            writeln!(buffer, " }}")?;
+            writeln!(buffer, "{}", external_crate.as_ref())?;
         }
         writeln!(buffer)?;
 
