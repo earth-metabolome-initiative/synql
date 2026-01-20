@@ -166,11 +166,12 @@ mod tests {
 
     #[test]
     fn test_git_branch() {
-        let dep =
-            TomlDependency::new("my-crate").git("https://github.com/user/repo").branch("main");
+        let dep = TomlDependency::new("geometric-traits")
+            .git("https://github.com/earth-metabolome-initiative/geometric-traits")
+            .branch("main");
         assert_eq!(
             dep.to_string(),
-            "my-crate = { git = \"https://github.com/user/repo\", branch = \"main\" }"
+            "geometric-traits = { git = \"https://github.com/earth-metabolome-initiative/geometric-traits\", branch = \"main\" }"
         );
     }
 
