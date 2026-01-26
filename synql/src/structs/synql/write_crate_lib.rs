@@ -67,7 +67,7 @@ impl<DB: SynQLDatabaseLike> SynQL<'_, DB> {
             && (primary_key_columns.len() > 1 || primary_key_columns[0].column_name() != "id")
         {
             let primary_key_idents: Vec<syn::Ident> =
-                primary_key_columns.iter().map(|col| col.column_snake_ident()).collect();
+                primary_key_columns.iter().map(ColumnSynLike::column_snake_ident).collect();
             primary_key_decorator = Some(quote! {
                 #[diesel(primary_key(#(#primary_key_idents),*))]
             });

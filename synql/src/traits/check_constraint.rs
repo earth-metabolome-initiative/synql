@@ -53,7 +53,7 @@ pub trait CheckConstraintSynLike: CheckConstraintLike {
         } else {
             let column_idents = relevant_optional_columns
                 .iter()
-                .map(|column| column.column_snake_ident())
+                .map(ColumnSynLike::column_snake_ident)
                 .collect::<Vec<_>>();
             let table_ident = self.table(database).table_snake_ident();
             if column_idents.len() == 1 {

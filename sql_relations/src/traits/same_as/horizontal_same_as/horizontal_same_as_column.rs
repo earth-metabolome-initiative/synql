@@ -1,8 +1,6 @@
 //! Submodule providing the `HorizontalSameAsColumnLike` trait for working
 //! with columns that have horizontal same-as relationships.
 
-use std::borrow::Borrow;
-
 use sql_traits::traits::{ColumnLike, DatabaseLike, ForeignKeyLike};
 
 use crate::traits::HorizontalSameAsForeignKeyLike;
@@ -55,9 +53,9 @@ where
         database: &'db Self::DB,
     ) -> impl Iterator<Item = &'db <Self::DB as DatabaseLike>::ForeignKey> {
         use crate::traits::same_as::HorizontalSameAsTableLike;
-        self.table(database).horizontal_same_as_foreign_keys(database).filter(move |fk| {
-            fk.host_columns(database).map(Borrow::borrow).any(|col: &Self| col == self)
-        })
+        self.table(database)
+            .horizontal_same_as_foreign_keys(database)
+            .filter(move |fk| fk.host_columns(database).any(|col| col == self.borrow()))
     }
 
     /// Returns whether the column has any horizontal same-as foreign key.

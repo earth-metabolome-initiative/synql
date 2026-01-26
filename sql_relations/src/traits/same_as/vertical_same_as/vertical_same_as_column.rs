@@ -52,9 +52,9 @@ where
         database: &'db Self::DB,
     ) -> impl Iterator<Item = &'db <Self::DB as DatabaseLike>::ForeignKey> {
         use crate::traits::same_as::vertical_same_as::vertical_same_as_table::VerticalSameAsTableLike;
-        self.table(database).vertical_same_as_foreign_keys(database).filter(move |fk| {
-            fk.host_columns(database).map(Borrow::borrow).any(|col: &Self| col == self)
-        })
+        self.table(database)
+            .vertical_same_as_foreign_keys(database)
+            .filter(move |fk| fk.host_columns(database).any(|col| col == self.borrow()))
     }
 
     /// Returns the set of columns that are directly vertically same-as this
@@ -200,42 +200,42 @@ where
     /// # Ok(())
     /// # }
     /// ```
-    fn dominant_vertical_same_as_columns<'db>(&'db self, database: &'db Self::DB) -> Vec<&'db Self>
+    #[allow(clippy::unnecessary_to_owned)]
+    fn dominant_vertical_same_as_columns<'db>(
+        &'db self,
+        database: &'db Self::DB,
+    ) -> Vec<&'db <Self::DB as DatabaseLike>::Column>
     where
         Self: 'db,
     {
-        let mut reachable_set: HashSet<&Self> =
-            self.vertical_same_as_reachable_set(database).into_iter().map(Borrow::borrow).collect();
+        let mut reachable_set: HashSet<&'db <Self::DB as DatabaseLike>::Column> =
+            self.vertical_same_as_reachable_set(database).into_iter().collect();
         // The frontier contains the set of columns which so far can only be reached
         // from the current column. Once a column in the frontier is found to be
         // reachable from another column in the reachable set, it is marked as true
         // and will not be used to expand the reachable set anymore.
-        let mut frontier: HashMap<&Self, bool> = self
-            .vertical_same_as_columns(database)
-            .into_iter()
-            .map(Borrow::borrow)
-            .map(|c| (c, false))
-            .collect();
-        let table: &<Self::DB as DatabaseLike>::Table = self.table(database);
-        let vertical_extension_tables: Vec<&<Self::DB as DatabaseLike>::Table> =
+        let mut frontier: HashMap<&'db <Self::DB as DatabaseLike>::Column, bool> =
+            self.vertical_same_as_columns(database).into_iter().map(|c| (c, false)).collect();
+        let table: &'db <Self::DB as DatabaseLike>::Table = self.table(database);
+        let vertical_extension_tables: Vec<&'db <Self::DB as DatabaseLike>::Table> =
             table.ancestral_extended_tables(database);
         let mut changed = true;
 
         while changed {
             changed = false;
-            for ancestor in &vertical_extension_tables {
+            for ancestor in vertical_extension_tables.iter().copied() {
                 for ancestor_column in ancestor.columns(database) {
-                    let ancestor_column: &Self = ancestor_column.borrow();
+                    let ancestor_column: &'db <Self::DB as DatabaseLike>::Column = ancestor_column;
                     // If the ancestor node is already in the reachable set, skip it.
                     if reachable_set.contains(ancestor_column) {
                         continue;
                     }
 
-                    let ancestor_reachable_set: HashSet<&Self> = ancestor_column
-                        .vertical_same_as_reachable_set(database)
-                        .into_iter()
-                        .map(Borrow::borrow)
-                        .collect();
+                    let ancestor_reachable_set: HashSet<&'db <Self::DB as DatabaseLike>::Column> =
+                        ancestor_column
+                            .vertical_same_as_reachable_set(database)
+                            .into_iter()
+                            .collect();
 
                     // We update the frontier to mark as true columns which we have now discovered
                     // can be reached also from this ancestor column.
@@ -264,7 +264,9 @@ where
         // We then consider as vertically same-as only those columns in the frontier
         // which are still marked as false, meaning they could not be reached
         // from any other column in the reachable set.
-        let mut vertical_same_as_columns = frontier
+        let mut vertical_same_as_columns: Vec<
+            &'db <<Self as ColumnLike>::DB as DatabaseLike>::Column,
+        > = frontier
             .into_iter()
             .filter_map(|(column, is_reachable)| if is_reachable { None } else { Some(column) })
             .collect::<Vec<_>>();

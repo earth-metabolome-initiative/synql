@@ -11,7 +11,9 @@ use sql_relations::traits::{
     HorizontalSameAsColumnLike, TriangularSameAsColumnLike, TriangularSameAsForeignKeyLike,
     VerticalSameAsColumnLike,
 };
-use sql_traits::traits::{CheckConstraintLike, ColumnLike, ForeignKeyLike, TableLike};
+use sql_traits::traits::{
+    CheckConstraintLike, ColumnLike, DatabaseLike, ForeignKeyLike, TableLike,
+};
 use syn::{Ident, Type};
 
 use crate::{
@@ -253,10 +255,14 @@ pub trait ColumnSynLike: ColumnLike {
     ) -> Vec<proc_macro2::TokenStream> {
         let mut horizontal_same_as_decorators = vec![];
         for same_as in self.horizontal_same_as_foreign_keys(database) {
-            let host_columns =
-                same_as.host_columns(database).map(Borrow::borrow).collect::<Vec<&Self>>();
-            let referenced_columns =
-                same_as.referenced_columns(database).map(Borrow::borrow).collect::<Vec<&Self>>();
+            let host_columns = same_as
+                .host_columns(database)
+                .map(Borrow::borrow)
+                .collect::<Vec<&<Self::DB as DatabaseLike>::Column>>();
+            let referenced_columns = same_as
+                .referenced_columns(database)
+                .map(Borrow::borrow)
+                .collect::<Vec<&<Self::DB as DatabaseLike>::Column>>();
 
             let [key, other] = host_columns.as_slice() else {
                 unimplemented!(
@@ -264,7 +270,7 @@ pub trait ColumnSynLike: ColumnLike {
                     same_as.host_table(database).table_name(),
                     same_as.referenced_table(database).table_name(),
                     host_columns.len(),
-                    host_columns.iter().map(|col| col.column_name()).collect::<Vec<_>>().join(", ")
+                    host_columns.iter().map(ColumnLike::column_name).collect::<Vec<_>>().join(", ")
                 );
             };
             let [_foreign_pk, referenced_column] = referenced_columns.as_slice() else {
@@ -275,12 +281,12 @@ pub trait ColumnSynLike: ColumnLike {
                 continue;
             }
 
-            if key == &self {
+            if key == &self.borrow() {
                 // The key is handled separately in the discretionary/mandatory
                 // decorators
                 continue;
             }
-            if other != &self {
+            if other != &self.borrow() {
                 unreachable!(
                     "The column must be either the key or the other column in the foreign key"
                 );
