@@ -197,6 +197,38 @@ pub trait ColumnSynLike: ColumnLike {
         }
     }
 
+    /// Returns the generated Rust struct field name for this column.
+    ///
+    /// This mirrors the logic used in `generate_struct_field`:
+    /// - reserved Diesel keywords get a `__` prefix
+    /// - reserved Rust keywords use raw idents (`r#...`), which are stripped
+    ///   here
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// #  fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// use sql_traits::prelude::*;
+    /// use synql::prelude::*;
+    /// let db = ParserDB::try_from("CREATE TABLE my_table (type INT, columns INT);")?;
+    /// let table = db.table(None, "my_table").unwrap();
+    /// let col_type = table.column("type", &db).unwrap();
+    /// let col_columns = table.column("columns", &db).unwrap();
+    /// assert_eq!(col_type.struct_field_name(), "type");
+    /// assert_eq!(col_columns.struct_field_name(), "__columns");
+    /// # Ok(())
+    /// # }
+    /// ```
+    fn struct_field_name(&self) -> String {
+        let column_name = self.column_name();
+        let name = if is_reserved_diesel_keyword(column_name) {
+            format!("__{}", self.column_snake_name())
+        } else {
+            self.column_snake_ident().to_string()
+        };
+        name.strip_prefix("r#").unwrap_or(&name).to_string()
+    }
+
     /// Returns whether the column type supports the `Copy` trait in Rust.
     ///
     /// # Arguments

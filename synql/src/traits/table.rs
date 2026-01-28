@@ -298,6 +298,55 @@ where
         }
     }
 
+    /// Returns whether the struct generated for this table should allow
+    /// `clippy::struct_field_names`.
+    ///
+    /// The allow is added only when *all* generated struct field names share a
+    /// non-empty common prefix or suffix. Pure-underscore prefixes/suffixes are
+    /// ignored to avoid false positives from names like `__foo`.
+    ///
+    /// This uses `ColumnSynLike::struct_field_name()` so the check reflects the
+    /// actual Rust field names (including reserved Diesel keyword handling and
+    /// raw-ident stripping).
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// #  fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// use sql_traits::prelude::*;
+    /// use synql::prelude::*;
+    ///
+    /// let db = ParserDB::try_from(
+    ///     "
+    ///     CREATE TABLE prefixed (obs_id INT, obs_type INT, obs_value INT);
+    ///     CREATE TABLE mixed (id INT, foo_value INT, bar_kind INT);
+    ///     ",
+    /// )?;
+    ///
+    /// let prefixed = db.table(None, "prefixed").unwrap();
+    /// let mixed = db.table(None, "mixed").unwrap();
+    ///
+    /// assert!(prefixed.should_allow_struct_field_names(&db));
+    /// assert!(!mixed.should_allow_struct_field_names(&db));
+    /// # Ok(())
+    /// # }
+    /// ```
+    fn should_allow_struct_field_names(&self, database: &Self::DB) -> bool {
+        let names: Vec<String> = self.columns(database).map(ColumnSynLike::struct_field_name).collect();
+
+        if names.len() < 2 {
+            return false;
+        }
+
+        let common_prefix = common_prefix(&names);
+        let common_suffix = common_suffix(&names);
+
+        let valid_prefix = !common_prefix.is_empty() && !common_prefix.chars().all(|c| c == '_');
+        let valid_suffix = !common_suffix.is_empty() && !common_suffix.chars().all(|c| c == '_');
+
+        valid_prefix || valid_suffix
+    }
+
     /// Iterates over the identifiers of the primary key columns of this table.
     fn primary_key_idents<'db>(
         &'db self,
@@ -545,3 +594,65 @@ where
 }
 
 impl<T: TableLike> TableSynLike for T where <T::DB as DatabaseLike>::Column: ColumnSynLike {}
+
+/// Returns the longest common prefix across all strings.
+///
+/// If the slice is empty, returns an empty string.
+///
+/// # Example
+///
+/// ```rust
+/// use synql::traits::table::common_prefix;
+/// let strings = vec!["alpha_one".to_string(), "alpha_two".to_string(), "alpha_three".to_string()];
+/// assert_eq!(common_prefix(&strings), "alpha_");
+///
+/// let strings = vec!["cat".to_string(), "dogs".to_string()];
+/// assert_eq!(common_prefix(&strings), "");
+/// 
+/// //TODO Discuss case below with Luca
+/// let strings = vec!["cat".to_string(), "caterpillars".to_string()];
+/// assert_eq!(common_prefix(&strings), "cat");
+/// ```
+#[must_use]
+pub fn common_prefix(strings: &[String]) -> String {
+    if strings.is_empty() {
+        return String::new();
+    }
+    let first = strings[0].as_bytes();
+    let mut len = first.len();
+    for s in &strings[1..] {
+        len = len.min(s.len());
+        let bytes = s.as_bytes();
+        let mut i = 0;
+        while i < len && first[i] == bytes[i] {
+            i += 1;
+        }
+        len = i;
+        if len == 0 {
+            break;
+        }
+    }
+    strings[0][..len].to_string()
+}
+
+/// Returns the longest common suffix across all strings.
+///
+/// This is computed by reversing each string, taking the common prefix,
+/// and reversing the result. If the slice is empty, returns an empty string.
+///
+/// # Example
+///
+/// ```rust
+/// use synql::traits::table::common_suffix;
+/// let strings = vec!["user_id".to_string(), "group_id".to_string(), "team_id".to_string()];
+/// assert_eq!(common_suffix(&strings), "_id");
+///
+/// let strings = vec!["cat".to_string(), "dog".to_string()];
+/// assert_eq!(common_suffix(&strings), "");
+/// ```
+#[must_use]
+pub fn common_suffix(strings: &[String]) -> String {
+    let reversed: Vec<String> =
+        strings.iter().map(|s| s.chars().rev().collect::<String>()).collect();
+    common_prefix(&reversed).chars().rev().collect()
+}

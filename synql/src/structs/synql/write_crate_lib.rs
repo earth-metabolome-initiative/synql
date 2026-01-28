@@ -134,6 +134,11 @@ impl<DB: SynQLDatabaseLike> SynQL<'_, DB> {
             })
         };
 
+        let allow_struct_field_names =
+            table.should_allow_struct_field_names(self.database).then(|| {
+                quote! { #[allow(clippy::struct_field_names)] }
+            });
+
         let content = quote! {
             #allow_non_snake_case
             #![doc=#crate_documentation]
@@ -142,6 +147,7 @@ impl<DB: SynQLDatabaseLike> SynQL<'_, DB> {
             #[derive(::serde::Serialize, ::serde::Deserialize)]
             #[derive(::diesel::Queryable, ::diesel::Selectable, ::diesel::Identifiable, #derive_associations ::diesel_builders::prelude::TableModel)]
             #[doc=#struct_documentation]
+            #allow_struct_field_names
             #ancestor_decorator
             #error_decorator
             #(#belonging_to_decorators)*
