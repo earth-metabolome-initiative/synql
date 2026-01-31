@@ -5,7 +5,7 @@
 use crate::structs::{ExternalCrate, ExternalType};
 
 impl ExternalCrate {
-    /// Returns the cached `ExternalCrate` instance describing the
+    /// Returns `ExternalCrate` instance describing the
     /// `serde_json` crate.
     #[must_use]
     pub fn serde_json() -> ExternalCrate {

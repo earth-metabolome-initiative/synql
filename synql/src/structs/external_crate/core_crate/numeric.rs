@@ -5,13 +5,15 @@ use crate::structs::ExternalType;
 
 /// Returns a vector containing all the numeric types provided by the `core`
 /// crate.
-pub(super) fn all_types() -> [ExternalType; 8] {
+pub(super) fn all_types() -> [ExternalType; 10] {
     [
         ExternalType::i16(),
         ExternalType::i32(),
         ExternalType::u32(),
         ExternalType::u64(),
         ExternalType::i64(),
+        ExternalType::usize(),
+        ExternalType::isize(),
         ExternalType::f32(),
         ExternalType::f64(),
         ExternalType::bool(),
@@ -87,6 +89,36 @@ impl ExternalType {
             .supports_hash()
             .supports_ord()
             .into()
+    }
+
+    /// Returns a ` ExternalType` instance describing the `usize` type from the
+    /// `core` crate.
+    fn usize() -> Self {
+        ExternalType::new(
+            syn::parse_quote!(::diesel::sql_types::Unsigned<BigInt>),
+            syn::parse_quote!(usize),
+        )
+        .supports_debug()
+        .supports_copy()
+        .supports_default()
+        .supports_hash()
+        .supports_ord()
+        .into()
+    }
+
+    /// Returns a ` ExternalType` instance describing the `isize` type from the
+    /// `core` crate.
+    fn isize() -> Self {
+        ExternalType::new(
+            syn::parse_quote!(::diesel::sql_types::Signed<BigInt>),
+            syn::parse_quote!(isize),
+        )
+        .supports_debug()
+        .supports_copy()
+        .supports_default()
+        .supports_hash()
+        .supports_ord()
+        .into()
     }
 
     /// Returns a `ExternalType` instance describing the `f32` type from the

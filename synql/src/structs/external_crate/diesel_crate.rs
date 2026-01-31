@@ -47,7 +47,7 @@ impl MaximalNumberOfColumns {
 }
 
 impl ExternalCrate {
-    /// Returns the cached `ExternalCrate` instance describing the `diesel`
+    /// Returns `ExternalCrate` instance describing the `diesel`
     /// crate.
     #[must_use]
     pub fn diesel(number_of_columns: MaximalNumberOfColumns) -> ExternalCrate {

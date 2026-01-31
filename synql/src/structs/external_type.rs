@@ -128,6 +128,14 @@ impl ExternalType {
                 let casted: u64 = value.parse().map_err(|_| mk_err())?;
                 quote! { #casted }
             }
+            "usize" => {
+                let casted: usize = value.parse().map_err(|_| mk_err())?;
+                quote! { #casted }
+            }
+            "isize" => {
+                let casted: isize = value.parse().map_err(|_| mk_err())?;
+                quote! { #casted }
+            }
             "f32" => {
                 let casted: f32 = value.parse().map_err(|_| mk_err())?;
                 quote! { #casted }

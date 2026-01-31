@@ -379,11 +379,16 @@ pub trait ColumnSynLike: ColumnLike {
                     candidate.trim_end_matches("::character varying").trim_matches('\'');
                 quote! { #stripped_value }
             }
-            "gen_random_uuid()" if external_postgres_type.is_uuid() => {
+            "gen_random_uuid()" | "uuidv4()" if external_postgres_type.is_uuid() => {
                 quote! { ::uuid::Uuid::new_v4() }
             }
-            "gen_random_uuid()" if external_postgres_type.is_rosetta_uuid() => {
+            "gen_random_uuid()" | "uuidv4()" if external_postgres_type.is_rosetta_uuid() => {
                 quote! { ::rosetta_uuid::Uuid::new_v4() }
+            }
+            "uuidv7()" if external_postgres_type.is_rosetta_uuid() => {
+                quote! {
+                    ::rosetta_uuid::Uuid::utc_v7()
+                }
             }
             "CURRENT_TIMESTAMP" if external_postgres_type.crate_name() == "chrono" => {
                 quote! { ::chrono::Utc::now() }

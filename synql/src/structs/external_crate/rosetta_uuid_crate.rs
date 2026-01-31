@@ -5,15 +5,17 @@
 use crate::structs::{ExternalCrate, ExternalType};
 
 impl ExternalCrate {
-    /// Returns the cached `ExternalCrate` instance describing the
+    /// Returns `ExternalCrate` instance describing the
     /// `rosetta_uuid` crate.
     #[must_use]
     pub fn rosetta_uuid() -> ExternalCrate {
-        ExternalCrate::new("rosetta_uuid")
+        ExternalCrate::new("rosetta-uuid")
             .unwrap()
-            .git("https://github.com/earth-metabolome-initiative/emi-monorepo", "postgres-crate")
+            .version("0.1.0")
             .unwrap()
-            .features(["diesel", "serde", "sqlite"])
+            .git("https://github.com/earth-metabolome-initiative/rosetta-uuid", "main")
+            .unwrap()
+            .features(["diesel", "serde"])
             .types([ExternalType::new(
                 syn::parse_quote!(::rosetta_uuid::diesel_impls::Uuid),
                 syn::parse_quote!(::rosetta_uuid::Uuid),

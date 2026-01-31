@@ -19,7 +19,6 @@ time_requirements.workspace = true
 sqlparser.workspace = true
 proc-macro2.workspace = true
 quote.workspace = true
-cached.workspace = true
 inflection-rs.workspace = true
 strum.workspace = true
 strum_macros.workspace = true

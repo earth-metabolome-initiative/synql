@@ -9,10 +9,9 @@ sql_relations = { path = "sql_relations" }
 syn = { version = "2.0", features = ["full", "visit-mut", "extra-traits"] }
 chrono = { version = "0.4.39", features = ["serde"] }
 time_requirements = "0.1.0"
-sqlparser = "0.60"
+sqlparser = {version = "0.60", git = "https://github.com/LucaCappelletti94/sqlparser-rs", branch = "externalize-statements" }
 quote = "1.0"
 proc-macro2 = "1.0"
-cached = { version = "0.56" }
 inflection-rs = {git = "https://github.com/LucaCappelletti94/inflection-rs", branch = "main"}
 strum = { version = "0.27", features = ["derive"] }
 strum_macros = "0.27"

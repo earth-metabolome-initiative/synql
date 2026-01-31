@@ -4,7 +4,7 @@
 use crate::structs::{ExternalCrate, ExternalType};
 
 impl ExternalCrate {
-    /// Returns the cached `ExternalCrate` instance describing the `chrono`
+    /// Returns the `ExternalCrate` instance describing the `chrono`
     /// crate.
     #[must_use]
     pub fn chrono() -> ExternalCrate {

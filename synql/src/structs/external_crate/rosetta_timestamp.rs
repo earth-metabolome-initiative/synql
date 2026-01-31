@@ -5,7 +5,7 @@
 use crate::structs::{ExternalCrate, ExternalType};
 
 impl ExternalCrate {
-    /// Returns the cached `ExternalCrate` instance describing the
+    /// Returns `ExternalCrate` instance describing the
     /// `rosetta_timestamp` crate.
     #[must_use]
     pub fn rosetta_timestamp() -> ExternalCrate {

@@ -113,7 +113,7 @@ impl<'workspace> ExternalTypeRef<'workspace> {
     /// Returns whether the type is a `rosetta_uuid::Uuid`.
     #[must_use]
     pub fn is_rosetta_uuid(&self) -> bool {
-        self.crate_name() == "rosetta_uuid"
+        self.crate_name() == "rosetta-uuid"
     }
 
     /// Casts a value to the external type.

@@ -49,6 +49,21 @@ fn invert_operator(op: &BinaryOperator) -> BinaryOperator {
     }
 }
 
+/// Returns the syn version of the provided binary operator.
+fn syn_operator(op: &BinaryOperator) -> TokenStream {
+    match op {
+        BinaryOperator::Eq => quote! { == },
+        BinaryOperator::NotEq => quote! { != },
+        BinaryOperator::Gt => quote! { > },
+        BinaryOperator::Lt => quote! { < },
+        BinaryOperator::GtEq => quote! { >= },
+        BinaryOperator::LtEq => quote! { <= },
+        _ => {
+            unimplemented!("Unsupported operator: {op:?}");
+        }
+    }
+}
+
 impl<'workspace, 'db, DB> TranslateExpression<'workspace, 'db, DB>
 where
     DB: DatabaseLike,
@@ -70,12 +85,35 @@ where
                     (
                         Expr::Identifier(Ident { value: ident, .. }),
                         Expr::Value(ValueWithSpan { value, .. }),
-                    ) => Some(self.map_expr_to_single_field_error(ident, value, op)),
+                    ) => Some(self.map_value_expr_to_single_field_error(ident, value, op)),
+                    (Expr::Function(func), Expr::Value(ValueWithSpan { value, .. }))
+                        if func.name.to_string() == "length" =>
+                    {
+                        let string_type = self.workspace.string();
+                        let (parsed_arguments, columns) =
+                            self.parse_function_arguments(&func.args, &[string_type]);
+                        assert_eq!(columns.len(), 1);
+                        let column = columns[0];
+                        let parsed_argument = &parsed_arguments[0];
+                        let table_ident = self.table().table_snake_ident();
+                        let column_ident = column.column_snake_ident();
+                        let value_usize = self.parse_value(value, Some(self.workspace.usize())).0;
+                        let operator = syn_operator(op);
+                        Some(quote! {
+                            if #parsed_argument.len() #operator #value_usize {
+                                return Err(::validation_errors::ValidationError::exceeds_max_length(
+                                    <crate::#table_ident::table as ::diesel_builders::TableExt>::TABLE_NAME,
+                                    crate::#table_ident::#column_ident::NAME,
+                                    #value_usize
+                                ));
+                            }
+                        })
+                    }
                     (
                         Expr::Value(ValueWithSpan { value, .. }),
                         Expr::Identifier(Ident { value: ident, .. }),
                     ) => {
-                        Some(self.map_expr_to_single_field_error(
+                        Some(self.map_value_expr_to_single_field_error(
                             ident,
                             value,
                             &invert_operator(op),
@@ -105,7 +143,6 @@ where
         let left_column = self.column(left);
         let right_column = self.column(right);
         let table_ident = self.table().table_snake_ident();
-        let table_name = self.table().table_name();
         let left_column_ident = left_column.column_snake_ident();
         let right_column_ident = right_column.column_snake_ident();
         let l_name = quote! { crate::#table_ident::#left_column_ident::NAME };
@@ -151,7 +188,7 @@ where
                 let compare_op = compare_op(quote! {==});
                 quote! {
                     if #compare_op {
-                        return Err(#validation_error::equal(#table_name, #l_name, #r_name));
+                        return Err(#validation_error::equal(<crate::#table_ident::table as ::diesel_builders::TableExt>::TABLE_NAME, #l_name, #r_name));
                     }
                 }
             }
@@ -159,7 +196,7 @@ where
                 let compare_op = compare_op(quote! {>});
                 quote! {
                     if #compare_op {
-                        return Err(#validation_error::smaller_than(#table_name, #l_name, #r_name));
+                        return Err(#validation_error::smaller_than(<crate::#table_ident::table as ::diesel_builders::TableExt>::TABLE_NAME, #l_name, #r_name));
                     }
                 }
             }
@@ -167,7 +204,7 @@ where
                 let compare_op = compare_op(quote! {>=});
                 quote! {
                     if #compare_op {
-                        return Err(#validation_error::strictly_smaller_than(#table_name, #l_name, #r_name));
+                        return Err(#validation_error::strictly_smaller_than(<crate::#table_ident::table as ::diesel_builders::TableExt>::TABLE_NAME, #l_name, #r_name));
                     }
                 }
             }
@@ -175,7 +212,7 @@ where
                 let compare_op = compare_op(quote! {<=});
                 quote! {
                     if #compare_op {
-                        return Err(#validation_error::strictly_greater_than(#table_name, #l_name, #r_name));
+                        return Err(#validation_error::strictly_greater_than(<crate::#table_ident::table as ::diesel_builders::TableExt>::TABLE_NAME, #l_name, #r_name));
                     }
                 }
             }
@@ -183,7 +220,7 @@ where
                 let compare_op = compare_op(quote! {<});
                 quote! {
                     if #compare_op {
-                        return Err(#validation_error::greater_than(#table_name, #l_name, #r_name));
+                        return Err(#validation_error::greater_than(<crate::#table_ident::table as ::diesel_builders::TableExt>::TABLE_NAME, #l_name, #r_name));
                     }
                 }
             }
@@ -193,7 +230,7 @@ where
         }
     }
 
-    fn map_expr_to_single_field_error(
+    fn map_value_expr_to_single_field_error(
         &self,
         ident: &str,
         value: &Value,
@@ -202,7 +239,6 @@ where
         let column = self.column(ident);
         let column_ident = column.column_snake_ident();
         let table_ident = self.table().table_snake_ident();
-        let table_name = self.table().table_name();
         match op {
             BinaryOperator::NotEq => {
                 if column.is_textual(self.database)
@@ -211,7 +247,7 @@ where
                     quote! {
                         if #column_ident.is_empty() {
                             return Err(::validation_errors::ValidationError::empty(
-                                #table_name,
+                                <crate::#table_ident::table as ::diesel_builders::TableExt>::TABLE_NAME,
                                 crate::#table_ident::#column_ident::NAME
                             ));
                         }
@@ -226,7 +262,7 @@ where
                 quote! {
                     if #column_ident > &#column_value {
                         return Err(::validation_errors::ValidationError::smaller_than_value(
-                            #table_name,
+                            <crate::#table_ident::table as ::diesel_builders::TableExt>::TABLE_NAME,
                             crate::#table_ident::#column_ident::NAME,
                             #float_value
                         ));
@@ -239,7 +275,7 @@ where
                 quote! {
                     if #column_ident >= &#column_value {
                         return Err(::validation_errors::ValidationError::strictly_smaller_than_value(
-                            #table_name,
+                            <crate::#table_ident::table as ::diesel_builders::TableExt>::TABLE_NAME,
                             crate::#table_ident::#column_ident::NAME,
                             #float_value
                         ));
@@ -252,7 +288,7 @@ where
                 quote! {
                     if #column_ident <= &#column_value {
                         return Err(::validation_errors::ValidationError::strictly_greater_than_value(
-                            #table_name,
+                            <crate::#table_ident::table as ::diesel_builders::TableExt>::TABLE_NAME,
                             crate::#table_ident::#column_ident::NAME,
                             #float_value
                         ));
@@ -265,7 +301,7 @@ where
                 quote! {
                     if #column_ident < &#column_value {
                         return Err(::validation_errors::ValidationError::greater_than_value(
-                            #table_name,
+                            <crate::#table_ident::table as ::diesel_builders::TableExt>::TABLE_NAME,
                             crate::#table_ident::#column_ident::NAME,
                             #float_value
                         ));
@@ -412,7 +448,7 @@ where
             over,
             within_group,
         }: &sqlparser::ast::Function,
-    ) -> TokenStream {
+    ) -> (TokenStream, Option<ExternalTypeRef<'workspace>>) {
         if !within_group.is_empty() {
             unimplemented!("WithinGroup not supported");
         }
@@ -443,6 +479,7 @@ where
             .collect::<Vec<ExternalTypeRef>>();
 
         let (args, scoped_columns) = self.parse_function_arguments(args, &argument_types);
+
         let function_ref: ExternalFunctionRef =
             function.external_function_ref(self.workspace).unwrap_or_else(|| {
                 panic!(
@@ -480,9 +517,12 @@ where
             }
         };
 
-        quote! {
-            #function_ref(#(#args),*)#map_err
-        }
+        (
+            quote! {
+                #function_ref(#(#args),*)#map_err
+            },
+            None,
+        )
     }
 
     /// Parses the provided [`Value`] for the provided
@@ -598,10 +638,10 @@ where
     ) -> (TokenStream, Vec<&'_ DB::Column>, Option<ExternalTypeRef<'workspace>>) {
         match expr {
             Expr::Function(function) => {
-                let token_stream = self.parse_function(function);
-                (token_stream, Vec::new(), None)
+                let (token_stream, return_type) = self.parse_function(function);
+                (token_stream, Vec::new(), return_type)
             }
-            Expr::Cast { kind, expr, data_type: _, format } => {
+            Expr::Cast { kind, expr, data_type: _, array: _, format } => {
                 verify_cast_kind(kind);
                 if format.is_some() {
                     unimplemented!("Format not supported");

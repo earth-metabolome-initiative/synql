@@ -4,7 +4,7 @@
 use crate::structs::{ExternalCrate, ExternalType};
 
 impl ExternalCrate {
-    /// Returns the cached `ExternalCrate` instance describing the `std` crate.
+    /// Returns `ExternalCrate` instance describing the `std` crate.
     #[must_use]
     pub fn std() -> ExternalCrate {
         ExternalCrate::new("std")

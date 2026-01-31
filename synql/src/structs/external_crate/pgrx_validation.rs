@@ -5,7 +5,7 @@
 use crate::structs::{ExternalCrate, ExternalFunction};
 
 impl ExternalCrate {
-    /// Returns the cached `ExternalCrate` instance describing the
+    /// Returns `ExternalCrate` instance describing the
     /// `pgrx_validation` crate.
     #[must_use]
     pub fn pgrx_validation() -> ExternalCrate {
