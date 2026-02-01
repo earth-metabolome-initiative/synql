@@ -271,6 +271,7 @@ impl<'db, DB: SynQLDatabaseLike> SynQL<'db, DB> {
             .name(self.name.as_deref().unwrap_or_else(|| self.database.catalog_name()))
             .expect("Invalid workspace name")
             .external_crates(self.external_crates.iter().cloned())
+            .rosetta_utc()
             .chrono()
             .core()
             .std()

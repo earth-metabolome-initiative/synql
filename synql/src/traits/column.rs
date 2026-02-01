@@ -393,6 +393,9 @@ pub trait ColumnSynLike: ColumnLike {
             "CURRENT_TIMESTAMP" if external_postgres_type.crate_name() == "chrono" => {
                 quote! { ::chrono::Utc::now() }
             }
+            "CURRENT_TIMESTAMP" if external_postgres_type.crate_name() == "rosetta-utc" => {
+                quote! { ::rosetta_utc::TimestampUTC::default() }
+            }
             _ => {
                 let Ok(casted_default_value) = external_postgres_type.cast(&default_value) else {
                     unimplemented!(

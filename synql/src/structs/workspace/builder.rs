@@ -147,6 +147,12 @@ impl WorkspaceBuilder {
         self.external_crate(ExternalCrate::diesel_builders(number_of_columns))
     }
 
+    /// Adds the `rosetta_utc` external crate to the workspace.
+    #[must_use]
+    pub fn rosetta_utc(self) -> Self {
+        self.external_crate(ExternalCrate::rosetta_utc())
+    }
+
     /// Adds the `validation_errors` external crate to the workspace.
     #[must_use]
     pub fn validation_errors(self) -> Self {

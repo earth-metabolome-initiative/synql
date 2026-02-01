@@ -41,11 +41,10 @@ impl MaximalNumberOfColumns {
     /// columns.
     fn as_diesel_feature_str(&self) -> Option<&str> {
         match self {
-            MaximalNumberOfColumns::Columns16 => None,
-            MaximalNumberOfColumns::Columns32 => Some("32-column-tables"),
-            MaximalNumberOfColumns::Columns48 => Some("64-column-tables"),
-            MaximalNumberOfColumns::Columns64 => Some("64-column-tables"),
-            MaximalNumberOfColumns::Columns128 => Some("128-column-tables"),
+            Self::Columns16 => None,
+            Self::Columns32 => Some("32-column-tables"),
+            Self::Columns48 | Self::Columns64 => Some("64-column-tables"),
+            Self::Columns128 => Some("128-column-tables"),
         }
     }
 }

@@ -98,7 +98,7 @@ where
                         let operator = syn_operator(&invert_operator(op));
 
                         Some(quote! {
-                            if *#column_ident #operator ::chrono::Utc::now() {
+                            if *#column_ident #operator ::rosetta_utc::TimestampUTC::now() {
                                 return Err(::validation_errors::ValidationError::in_the_future(
                                     <crate::#table_ident::table as ::diesel_builders::TableExt>::TABLE_NAME,
                                     crate::#table_ident::#column_ident::NAME,
