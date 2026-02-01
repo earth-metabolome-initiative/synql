@@ -26,7 +26,7 @@ impl ExternalCrate {
                 .supports_hash()
                 .into(),
                 ExternalType::new(
-                    syn::parse_quote!(::diesel::sql_types::Timestamptz),
+                    syn::parse_quote!(::diesel::sql_types::Timestamp),
                     syn::parse_quote!(::chrono::DateTime<chrono::Utc>),
                 )
                 .postgres_types(["timestamptz", "timestamp with time zone"])

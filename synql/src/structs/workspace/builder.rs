@@ -147,12 +147,6 @@ impl WorkspaceBuilder {
         self.external_crate(ExternalCrate::diesel_builders(number_of_columns))
     }
 
-    /// Adds the `rosetta_timestamp` external crate to the workspace.
-    #[must_use]
-    pub fn rosetta_timestamp(self) -> Self {
-        self.external_crate(ExternalCrate::rosetta_timestamp())
-    }
-
     /// Adds the `validation_errors` external crate to the workspace.
     #[must_use]
     pub fn validation_errors(self) -> Self {

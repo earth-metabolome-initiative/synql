@@ -18,7 +18,6 @@ mod diesel_builders;
 mod diesel_crate;
 mod pgrx_validation;
 mod postgis_diesel_crate;
-mod rosetta_timestamp;
 mod rosetta_uuid_crate;
 mod serde;
 mod serde_json;
