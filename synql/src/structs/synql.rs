@@ -244,6 +244,27 @@ impl<'db, DB: SynQLDatabaseLike> SynQL<'db, DB> {
             .unwrap_or(0)
             .try_into()?;
 
+        let maximum_number_of_columns_in_hierarchy: MaximalNumberOfColumns = self
+            .database
+            .tables()
+            .filter_map(|table| {
+                if self.skip_table(table) {
+                    None
+                } else {
+                    Some(
+                        table
+                            .ancestral_extended_tables(self.database)
+                            .iter()
+                            .map(|ancestor_table| ancestor_table.number_of_columns(self.database))
+                            .sum::<usize>()
+                            + table.number_of_columns(self.database),
+                    )
+                }
+            })
+            .max()
+            .unwrap_or(0)
+            .try_into()?;
+
         let workspace: Workspace = Workspace::new()
             .path(self.path.to_path_buf())
             .crate_base_path(self.crate_base_path.to_path_buf())
@@ -259,7 +280,7 @@ impl<'db, DB: SynQLDatabaseLike> SynQL<'db, DB> {
             .serde_json()
             .validation_errors()
             .postgis_diesel(maximum_number_of_columns)
-            .diesel_builders(maximum_number_of_columns)
+            .diesel_builders(maximum_number_of_columns_in_hierarchy)
             .rosetta_uuid()
             .version(self.version.0, self.version.1, self.version.2)
             .edition(self.edition)
