@@ -15,7 +15,7 @@ impl ExternalCrate {
             .unwrap()
             .git("https://github.com/earth-metabolome-initiative/rosetta-uuid", "main")
             .unwrap()
-            .features(["diesel", "serde"])
+            .features(["diesel", "serde", "sqlite"])
             .types([ExternalType::new(
                 syn::parse_quote!(::rosetta_uuid::diesel_impls::Uuid),
                 syn::parse_quote!(::rosetta_uuid::Uuid),
