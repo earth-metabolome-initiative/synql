@@ -1,6 +1,6 @@
 //! Submodule implementing the writing of the crate library files.
 
-use std::io::Write;
+use std::{io::Write, iter::once};
 
 use quote::quote;
 use sql_relations::prelude::{ColumnLike, TableLike};
@@ -53,8 +53,12 @@ impl<DB: SynQLDatabaseLike> SynQL<'_, DB> {
 
         // If the crate has check constraints, it means we need to specify
         // the error type in the derive macro.
-        let error_decorator =
-            table.has_non_tautological_check_constraints(self.database).then(|| {
+        let error_decorator = table
+            .ancestral_extended_tables(self.database)
+            .into_iter()
+            .chain(once(table))
+            .any(|t| t.has_non_tautological_check_constraints(self.database))
+            .then(|| {
                 quote! {
                     #[table_model(error = ::validation_errors::ValidationError)]
                 }
