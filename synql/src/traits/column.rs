@@ -621,7 +621,7 @@ pub trait ColumnSynLike: ColumnLike {
         // If the column has no check constraints, we can mark it as infallible
         let infallible_decorator = if !self.has_non_tautological_check_constraints(database)
             && table.has_non_tautological_check_constraints_in_hierarchy(database)
-            && !(self.is_primary_key(database) && table.has_surrogate_primary_key(database))
+            && !self.is_surrogate_key(database)
         {
             Some(quote! {
                 #[infallible]
