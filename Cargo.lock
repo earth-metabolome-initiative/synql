@@ -824,7 +824,7 @@ dependencies = [
 [[package]]
 name = "sql-traits"
 version = "0.1.0"
-source = "git+https://github.com/earth-metabolome-initiative/sql-traits?branch=main#827efde35fd1e0d765a1963d713bc995a37c93ad"
+source = "git+https://github.com/earth-metabolome-initiative/sql-traits?branch=main#ef94083f8e4abcb6092273aa85cd25689a526629"
 dependencies = [
  "geometric-traits",
  "git2",
@@ -837,7 +837,7 @@ dependencies = [
 [[package]]
 name = "sql_docs"
 version = "1.0.11"
-source = "git+https://github.com/LucaCappelletti94/sql-docs?branch=main#db34474b99836bb9291a4bebc5d0633cb1af64c7"
+source = "git+https://github.com/LucaCappelletti94/sql-docs?branch=main#a2cbc3229cbe9df69f1de2b3eb19c68e02186cc8"
 dependencies = [
  "sqlparser 0.60.0 (git+https://github.com/apache/datafusion-sqlparser-rs?branch=main)",
 ]

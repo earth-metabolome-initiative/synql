@@ -96,11 +96,7 @@ impl<DB: SynQLDatabaseLike> SynQL<'_, DB> {
                 if table > spouse_table {
                     return None;
                 }
-
-                if table.depends_on(self.database, &spouse_table) {
-                    return None;
-                }
-
+                
                 let spouse_table_crate_ident = spouse_table.crate_ident(workspace);
                 let spouse_table_ident = spouse_table.table_ident();
                 Some(quote! {
