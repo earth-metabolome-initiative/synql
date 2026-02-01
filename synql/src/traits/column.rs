@@ -562,6 +562,7 @@ pub trait ColumnSynLike: ColumnLike {
         database: &Self::DB,
     ) -> Result<proc_macro2::TokenStream, crate::Error> {
         let column_name = self.column_name();
+        let table = self.table(database);
         let (sql_name_decorator, column_ident) = if is_reserved_diesel_keyword(column_name) {
             let ident_str = format!("__{}", self.column_snake_name());
             (
@@ -575,7 +576,7 @@ pub trait ColumnSynLike: ColumnLike {
         let external_postgres_type =
             self.external_postgres_type(workspace, database).ok_or_else(|| {
                 crate::Error::ColumnTypeNotFound {
-                    table_name: self.table(database).table_name().to_string(),
+                    table_name: table.table_name().to_string(),
                     column_name: self.column_name().to_string(),
                     sql_type: self.data_type(database).to_string(),
                 }
@@ -585,7 +586,7 @@ pub trait ColumnSynLike: ColumnLike {
                 format!(
                     "Field representing the `{}` column in table `{}`.",
                     self.column_name(),
-                    self.table(database).table_name()
+                    table.table_name()
                 )
             },
             ToString::to_string,
@@ -619,9 +620,8 @@ pub trait ColumnSynLike: ColumnLike {
 
         // If the column has no check constraints, we can mark it as infallible
         let infallible_decorator = if !self.has_non_tautological_check_constraints(database)
-            && self.table(database).has_non_tautological_check_constraints(database)
-            && !(self.is_primary_key(database)
-                && self.table(database).has_surrogate_primary_key(database))
+            && table.has_non_tautological_check_constraints_in_hierarchy(database)
+            && !(self.is_primary_key(database) && table.has_surrogate_primary_key(database))
         {
             Some(quote! {
                 #[infallible]

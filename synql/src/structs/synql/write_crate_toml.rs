@@ -37,7 +37,7 @@ edition.workspace = true
 
         // If the table has check constraints, it will require the `validation_errors`
         // crate.
-        if table.has_check_constraints(self.database) {
+        if table.has_non_tautological_check_constraints_in_hierarchy(self.database) {
             writeln!(buffer, "validation-errors.workspace = true")?;
         }
 
