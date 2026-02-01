@@ -10,6 +10,7 @@ impl MaximalNumberOfColumns {
     fn as_diesel_builders_feature(self) -> Option<&'static str> {
         match self {
             Self::Columns16 | Self::Columns32 => None,
+            Self::Columns48 => Some("size-48"),
             Self::Columns64 => Some("size-64"),
             Self::Columns128 => Some("size-128"),
         }

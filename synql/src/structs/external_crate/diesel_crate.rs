@@ -13,6 +13,8 @@ pub enum MaximalNumberOfColumns {
     Columns16,
     /// Up to 32 columns support.
     Columns32,
+    /// Up to 48 columns support.
+    Columns48,
     /// Up to 64 columns support.
     Columns64,
     /// Up to 128 columns support.
@@ -26,7 +28,8 @@ impl TryFrom<usize> for MaximalNumberOfColumns {
         match value {
             0..=16 => Ok(MaximalNumberOfColumns::Columns16),
             17..=32 => Ok(MaximalNumberOfColumns::Columns32),
-            33..=64 => Ok(MaximalNumberOfColumns::Columns64),
+            33..=48 => Ok(MaximalNumberOfColumns::Columns48),
+            49..=64 => Ok(MaximalNumberOfColumns::Columns64),
             65..=128 => Ok(MaximalNumberOfColumns::Columns128),
             _ => Err(crate::Error::TooManyColumns(value)),
         }
@@ -40,6 +43,7 @@ impl MaximalNumberOfColumns {
         match self {
             MaximalNumberOfColumns::Columns16 => None,
             MaximalNumberOfColumns::Columns32 => Some("32-column-tables"),
+            MaximalNumberOfColumns::Columns48 => Some("64-column-tables"),
             MaximalNumberOfColumns::Columns64 => Some("64-column-tables"),
             MaximalNumberOfColumns::Columns128 => Some("128-column-tables"),
         }
