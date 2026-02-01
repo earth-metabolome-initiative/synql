@@ -98,7 +98,7 @@ where
                         let table_ident = self.table().table_snake_ident();
                         let column_ident = column.column_snake_ident();
                         let value_usize = self.parse_value(value, Some(self.workspace.usize())).0;
-                        let operator = syn_operator(op);
+                        let operator = syn_operator(&invert_operator(op));
                         Some(quote! {
                             if #parsed_argument.len() #operator #value_usize {
                                 return Err(::validation_errors::ValidationError::exceeds_max_length(
