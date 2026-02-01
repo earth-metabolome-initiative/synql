@@ -86,6 +86,27 @@ where
                         Expr::Identifier(Ident { value: ident, .. }),
                         Expr::Value(ValueWithSpan { value, .. }),
                     ) => Some(self.map_value_expr_to_single_field_error(ident, value, op)),
+                    (
+                        Expr::Identifier(Ident { value: ident, .. }),
+                        Expr::Function(func)
+                    ) if func.name.to_string() == "NOW" => {
+                        let column = self.column(ident);
+                        let column_ident = column.column_snake_ident();
+                        let table_ident = self.table().table_snake_ident();
+
+                        assert!(matches!(op, BinaryOperator::LtEq | BinaryOperator::Lt));
+
+                        let operator = syn_operator(&invert_operator(op));
+
+                        Some(quote! {
+                            if #column_ident #operator ::chrono::Utc::now() {
+                                return Err(::validation_errors::ValidationError::in_the_future(
+                                    <crate::#table_ident::table as ::diesel_builders::TableExt>::TABLE_NAME,
+                                    crate::#table_ident::#column_ident::NAME,
+                                ));
+                            }
+                        })
+                    },
                     (Expr::Function(func), Expr::Value(ValueWithSpan { value, .. }))
                         if func.name.to_string() == "length" =>
                     {
