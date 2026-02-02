@@ -26,8 +26,9 @@ where
     /// ```rust
     /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// use sql_relations::prelude::*;
+    /// use sqlparser::dialect::GenericDialect;
     ///
-    /// let db = ParserDB::try_from(
+    /// let db = ParserDB::parse(
     ///     r#"
     ///     CREATE TABLE parent (id INT PRIMARY KEY, name TEXT, age SMALLINT, UNIQUE(id, name), UNIQUE(id, age));
     ///     CREATE TABLE child (
@@ -38,6 +39,7 @@ where
     ///         FOREIGN KEY (id, age) REFERENCES parent(id, age)
     ///     );
     ///   "#,
+    ///     &GenericDialect {},
     /// )?;
     /// let child_table = db.table(None, "child").unwrap();
     /// let name_column = child_table.column("name", &db).expect("Column 'name' should exist");
@@ -69,8 +71,9 @@ where
     /// ```rust
     /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// use sql_relations::prelude::*;
+    /// use sqlparser::dialect::GenericDialect;
     ///
-    /// let db = ParserDB::try_from(
+    /// let db = ParserDB::parse(
     ///     r#"
     ///     CREATE TABLE parent (id INT PRIMARY KEY, name TEXT, age SMALLINT, UNIQUE(id, name), UNIQUE(id, age));
     ///     CREATE TABLE child (
@@ -81,6 +84,7 @@ where
     ///         FOREIGN KEY (id, age) REFERENCES parent(id, age)
     ///     );
     ///   "#,
+    ///     &GenericDialect {},
     /// )?;
     /// let child_table = db.table(None, "child").unwrap();
     /// let name_column = child_table.column("name", &db).expect("Column 'name' should exist");
@@ -114,8 +118,9 @@ where
     /// ```rust
     /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// use sql_relations::prelude::*;
+    /// use sqlparser::dialect::GenericDialect;
     ///
-    /// let db = ParserDB::try_from(
+    /// let db = ParserDB::parse(
     ///     r#"
     ///     CREATE TABLE grandparent (id INT PRIMARY KEY, name TEXT, UNIQUE(id, name));
     ///     CREATE TABLE parent (
@@ -129,6 +134,7 @@ where
     ///         FOREIGN KEY (id, child_name) REFERENCES grandparent(id, name)
     ///     );
     ///   "#,
+    ///     &GenericDialect {},
     /// )?;
     /// let child_table = db.table(None, "child").unwrap();
     /// let child_name_column =
@@ -171,8 +177,9 @@ where
     /// ```rust
     /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// use sql_relations::prelude::*;
+    /// use sqlparser::dialect::GenericDialect;
     ///
-    /// let db = ParserDB::try_from(
+    /// let db = ParserDB::parse(
     ///     r#"
     ///     CREATE TABLE grandparent (id INT PRIMARY KEY, name TEXT, UNIQUE(id, name));
     ///     CREATE TABLE parent (
@@ -186,6 +193,7 @@ where
     ///         FOREIGN KEY (id, child_name) REFERENCES grandparent(id, name)
     ///     );
     ///   "#,
+    ///     &GenericDialect {},
     /// )?;
     /// let child_table = db.table(None, "child").unwrap();
     /// let child_name_column =

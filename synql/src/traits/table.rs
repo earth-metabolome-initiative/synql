@@ -108,9 +108,10 @@ where
     /// ```rust
     /// #  fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// use sql_traits::prelude::*;
+    /// use sqlparser::dialect::GenericDialect;
     /// use synql::prelude::*;
     ///
-    /// let db = ParserDB::try_from("CREATE TABLE _my__table (id INT);")?;
+    /// let db = ParserDB::parse("CREATE TABLE _my__table (id INT);", &GenericDialect {})?;
     /// let table = db.table(None, "_my__table").unwrap();
     /// assert_eq!(table.table_snake_name(), "my_table");
     /// # Ok(())
@@ -127,9 +128,10 @@ where
     /// ```rust
     /// #  fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// use sql_traits::prelude::*;
+    /// use sqlparser::dialect::GenericDialect;
     /// use synql::prelude::*;
     ///
-    /// let db = ParserDB::try_from("CREATE TABLE users (id INT);")?;
+    /// let db = ParserDB::parse("CREATE TABLE users (id INT);", &GenericDialect {})?;
     /// let table = db.table(None, "users").unwrap();
     /// assert_eq!(table.table_singular_snake_name(), "user");
     /// # Ok(())
@@ -147,12 +149,14 @@ where
     /// ```rust
     /// #  fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// use sql_traits::prelude::*;
+    /// use sqlparser::dialect::GenericDialect;
     /// use synql::prelude::*;
-    /// let db = ParserDB::try_from(
+    /// let db = ParserDB::parse(
     ///     r#"
     ///         CREATE TABLE my_table (id INT);
     ///         CREATE TABLE MyTable (id INT);
     /// "#,
+    ///     &GenericDialect {},
     /// )?;
     /// let table1 = db.table(None, "my_table").unwrap();
     /// let table2 = db.table(None, "MyTable").unwrap();
@@ -172,9 +176,10 @@ where
     /// ```rust
     /// #  fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// use sql_traits::prelude::*;
+    /// use sqlparser::dialect::GenericDialect;
     /// use synql::prelude::*;
     ///
-    /// let db = ParserDB::try_from("CREATE TABLE box (id INT);")?;
+    /// let db = ParserDB::parse("CREATE TABLE box (id INT);", &GenericDialect {})?;
     /// let table = db.table(None, "box").unwrap();
     /// assert_eq!(table.table_snake_ident().to_string(), "r#box");
     /// # Ok(())
@@ -196,9 +201,10 @@ where
     /// ```rust
     /// #  fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// use sql_traits::prelude::*;
+    /// use sqlparser::dialect::GenericDialect;
     /// use synql::prelude::*;
     ///
-    /// let db = ParserDB::try_from("CREATE TABLE users (id INT);")?;
+    /// let db = ParserDB::parse("CREATE TABLE users (id INT);", &GenericDialect {})?;
     /// let table = db.table(None, "users").unwrap();
     /// assert_eq!(table.table_singular_snake_ident().to_string(), "user");
     /// # Ok(())
@@ -220,9 +226,10 @@ where
     /// ```rust
     /// #  fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// use sql_traits::prelude::*;
+    /// use sqlparser::dialect::GenericDialect;
     /// use synql::prelude::*;
     ///
-    /// let db = ParserDB::try_from("CREATE TABLE my_table (id INT);")?;
+    /// let db = ParserDB::parse("CREATE TABLE my_table (id INT);", &GenericDialect {})?;
     /// let table = db.table(None, "my_table").unwrap();
     /// assert_eq!(table.table_camel_name(), "MyTable");
     /// # Ok(())
@@ -239,9 +246,10 @@ where
     /// ```rust
     /// #  fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// use sql_traits::prelude::*;
+    /// use sqlparser::dialect::GenericDialect;
     /// use synql::prelude::*;
     ///
-    /// let db = ParserDB::try_from("CREATE TABLE users (id INT);")?;
+    /// let db = ParserDB::parse("CREATE TABLE users (id INT);", &GenericDialect {})?;
     /// let table = db.table(None, "users").unwrap();
     /// assert_eq!(table.table_singular_camel_name(), "User");
     /// # Ok(())
@@ -259,8 +267,9 @@ where
     /// ```rust
     /// #  fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// use sql_traits::prelude::*;
+    /// use sqlparser::dialect::GenericDialect;
     /// use synql::prelude::*;
-    /// let db = ParserDB::try_from("CREATE TABLE struct (id INT);")?;
+    /// let db = ParserDB::parse("CREATE TABLE struct (id INT);", &GenericDialect {})?;
     /// let table = db.table(None, "struct").unwrap();
     /// assert_eq!(table.table_camel_ident().to_string(), "Struct");
     /// # Ok(())
@@ -282,8 +291,9 @@ where
     /// ```rust
     /// #  fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// use sql_traits::prelude::*;
+    /// use sqlparser::dialect::GenericDialect;
     /// use synql::prelude::*;
-    /// let db = ParserDB::try_from("CREATE TABLE users (id INT);")?;
+    /// let db = ParserDB::parse("CREATE TABLE users (id INT);", &GenericDialect {})?;
     /// let table = db.table(None, "users").unwrap();
     /// assert_eq!(table.table_singular_camel_ident().to_string(), "User");
     /// # Ok(())

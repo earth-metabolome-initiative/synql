@@ -23,8 +23,9 @@ where
     /// ```rust
     /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// use sql_relations::prelude::*;
+    /// use sqlparser::dialect::GenericDialect;
     ///
-    /// let db = ParserDB::try_from(
+    /// let db = ParserDB::parse(
     ///     r#"
     /// CREATE TABLE right (id SERIAL PRIMARY KEY, name TEXT, age INT, UNIQUE(id, name), UNIQUE(id, age));
     /// CREATE TABLE left (
@@ -36,6 +37,7 @@ where
     ///     FOREIGN KEY (right_id, age) REFERENCES right(id, age)
     /// );
     ///   "#,
+    ///     &GenericDialect {},
     /// )?;
     /// let left_table = db.table(None, "left").unwrap();
     /// let right_id_column =
@@ -68,8 +70,9 @@ where
     /// ```rust
     /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// use sql_relations::prelude::*;
+    /// use sqlparser::dialect::GenericDialect;
     ///
-    /// let db = ParserDB::try_from(
+    /// let db = ParserDB::parse(
     ///     r#"
     /// CREATE TABLE right (id SERIAL PRIMARY KEY, name TEXT, age INT, UNIQUE(id, name), UNIQUE(id, age));
     /// CREATE TABLE left (
@@ -81,6 +84,7 @@ where
     ///     FOREIGN KEY (right_id, age) REFERENCES right(id, age)
     /// );
     ///   "#,
+    ///     &GenericDialect {},
     /// )?;
     /// let left_table = db.table(None, "left").unwrap();
     /// let name_column = left_table.column("name", &db).expect("Column 'name' should exist");

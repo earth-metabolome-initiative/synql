@@ -18,8 +18,9 @@ pub trait SameAsIndexLike: UniqueIndexLike {
     /// ```rust
     /// #  fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// use sql_relations::prelude::*;
+    /// use sqlparser::dialect::GenericDialect;
     ///
-    /// let db = ParserDB::try_from(
+    /// let db = ParserDB::parse(
     ///     r#"
     /// CREATE TABLE with_same_as (id INT PRIMARY KEY, name TEXT, UNIQUE(id, name));
     /// CREATE TABLE no_same_as_one (id INT PRIMARY KEY, name TEXT, UNIQUE(name));
@@ -27,6 +28,7 @@ pub trait SameAsIndexLike: UniqueIndexLike {
     /// CREATE TABLE no_same_as_three (id INT, name TEXT, PRIMARY KEY(id, name));
     /// CREATE TABLE no_same_as_four (id INT, name TEXT, PRIMARY KEY(id, name), UNIQUE(id), UNIQUE(name), UNIQUE(id, name));
     /// "#,
+    ///     &GenericDialect {},
     /// )?;
     ///
     /// let table_with_same_as = db.table(None, "with_same_as").unwrap();

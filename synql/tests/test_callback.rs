@@ -2,11 +2,12 @@
 
 use quote::quote;
 use sql_traits::prelude::ParserDB;
+use sqlparser::dialect::GenericDialect;
 use synql::prelude::*;
 
 #[test]
 fn test_callback_generation() -> Result<(), Box<dyn std::error::Error>> {
-    let db = ParserDB::try_from("CREATE TABLE users (id SERIAL PRIMARY KEY);")?;
+    let db = ParserDB::parse("CREATE TABLE users (id SERIAL PRIMARY KEY);", &GenericDialect {})?;
     let temp_dir = tempfile::tempdir()?;
     let workspace_path = temp_dir.path().join("synql_workspace");
 

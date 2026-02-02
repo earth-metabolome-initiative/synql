@@ -8,11 +8,12 @@
 use std::process::Command;
 
 use sql_traits::prelude::ParserDB;
+use sqlparser::dialect::GenericDialect;
 use synql::prelude::*;
 
 #[test]
 fn test_workspace_generation() -> Result<(), Box<dyn std::error::Error>> {
-    let db = ParserDB::try_from(
+    let db = ParserDB::parse(
         r"
 		CREATE TABLE users (
 		    id SERIAL PRIMARY KEY,
@@ -34,6 +35,7 @@ fn test_workspace_generation() -> Result<(), Box<dyn std::error::Error>> {
             extra_info TEXT
         );
 ",
+        &GenericDialect {},
     )?;
     let temp_dir = tempfile::tempdir().expect("Unable to create temporary directory");
     let workspace_path = temp_dir.path().join("synql_workspace");

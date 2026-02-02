@@ -1,11 +1,12 @@
 //! Test module to verify mandatory triangular same-as relationship decoration.
 
 use sql_traits::prelude::ParserDB;
+use sqlparser::dialect::GenericDialect;
 use synql::prelude::*;
 
 #[test]
 fn test_mandatory_triangular_same_as() -> Result<(), Box<dyn std::error::Error>> {
-    let db = ParserDB::try_from(
+    let db = ParserDB::parse(
         r"
     CREATE TABLE grandparent (id INT PRIMARY KEY);
     CREATE TABLE parent (id INT PRIMARY KEY REFERENCES grandparent(id));
@@ -16,6 +17,7 @@ fn test_mandatory_triangular_same_as() -> Result<(), Box<dyn std::error::Error>>
         FOREIGN KEY (sibling_id, id) REFERENCES sibling(id, grandparent_id)
     );
 ",
+        &GenericDialect {},
     )?;
     let temp_dir = tempfile::tempdir().expect("Unable to create temporary directory");
     let workspace_path = temp_dir.path().join("synql_mandatory_triangular");

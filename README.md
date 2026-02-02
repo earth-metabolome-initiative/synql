@@ -41,17 +41,20 @@ use std::fs::File;
 use std::io::Write;
 use tempfile::tempdir;
 use sql_traits::prelude::ParserDB;
+use sqlparser::dialect::GenericDialect;
 use synql::prelude::*;
 
 // Setup a temporary directory with a SQL file
 let dir = tempdir().unwrap();
 let file_path = dir.path().join("model.sql");
-let mut file = File::create(file_path).unwrap();
+let mut file = File::create(&file_path).unwrap();
 writeln!(file, "CREATE TABLE users (id SERIAL PRIMARY KEY, name TEXT);").unwrap();
 
-// Parse the directory
-// Note: ParserDB::try_from usually takes a path to a directory or file structure
-let db = ParserDB::try_from(dir.path()).expect("Failed to parse database schema");
+// Read the SQL content from the file
+let sql = std::fs::read_to_string(&file_path).expect("Failed to read SQL file");
+
+// Parse the SQL string
+let db = ParserDB::parse(&sql, &GenericDialect {}).expect("Failed to parse database schema");
 
 // Generate to a temporary output path
 let output_dir = tempdir().unwrap();

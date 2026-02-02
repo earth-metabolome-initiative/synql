@@ -24,8 +24,9 @@ This relies on an underlying **Extension** relationship (where the Child's Prima
 ```rust
 use sql_traits::prelude::*;
 use sql_relations::prelude::*;
+use sqlparser::dialect::GenericDialect;
 
-let db = ParserDB::try_from(
+let db = ParserDB::parse(
  r#"
  CREATE TABLE parent (id INT PRIMARY KEY, name TEXT, UNIQUE(id, name));
 
@@ -36,6 +37,7 @@ let db = ParserDB::try_from(
   FOREIGN KEY (id, name) REFERENCES parent(id, name)
  );
  "#,
+ &GenericDialect {},
 ).unwrap();
 
 let child_table = db.table(None, "child").unwrap();
@@ -76,8 +78,9 @@ Describes a relationship between two tables that are not in a direct extension l
 ```rust
 use sql_traits::prelude::*;
 use sql_relations::prelude::*;
+use sqlparser::dialect::GenericDialect;
 
-let db = ParserDB::try_from(
+let db = ParserDB::parse(
  r#"
  CREATE TABLE brother (
   id INT PRIMARY KEY, 
@@ -93,6 +96,7 @@ let db = ParserDB::try_from(
   FOREIGN KEY (brother_id, child_name) REFERENCES brother(id, brother_name)
  );
  "#,
+ &GenericDialect {},
 ).unwrap();
 
 let child_table = db.table(None, "child").unwrap();
@@ -140,8 +144,9 @@ This topology creates a "triangular" constraint where the path from `A` to `C` c
 ```rust
 use sql_traits::prelude::*;
 use sql_relations::prelude::*;
+use sqlparser::dialect::GenericDialect;
 
-let db = ParserDB::try_from(
+let db = ParserDB::parse(
  r#"
  CREATE TABLE grandparent (id INT PRIMARY KEY);
  CREATE TABLE parent (id INT PRIMARY KEY REFERENCES grandparent(id));
@@ -163,6 +168,7 @@ let db = ParserDB::try_from(
   FOREIGN KEY (sibling_id, id) REFERENCES sibling(id, grandparent_id)
  );
  "#,
+ &GenericDialect {},
 ).unwrap();
 
 let child_table = db.table(None, "child").unwrap();

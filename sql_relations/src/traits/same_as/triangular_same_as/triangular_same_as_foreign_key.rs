@@ -29,7 +29,8 @@ impl<'db, FK: HorizontalSameAsForeignKeyLike> Triangular<'db, FK> {
     ///
     /// ```rust
     /// use sql_relations::prelude::*;
-    /// let db = ParserDB::try_from(
+    /// use sqlparser::dialect::GenericDialect;
+    /// let db = ParserDB::parse(
     ///     r#"
     /// CREATE TABLE grandparent (id INT PRIMARY KEY);
     /// CREATE TABLE parent (id INT PRIMARY KEY REFERENCES grandparent(id));
@@ -37,6 +38,7 @@ impl<'db, FK: HorizontalSameAsForeignKeyLike> Triangular<'db, FK> {
     /// CREATE TABLE child (id INT PRIMARY KEY REFERENCES parent(id), sibling_id INT REFERENCES sibling(id),
     ///     FOREIGN KEY (sibling_id, id) REFERENCES sibling(id, grandparent_id));
     /// "#,
+    ///     &GenericDialect {},
     /// ).unwrap();
     /// let child_table = db.table(None, "child").unwrap();
     /// // Look for triangular relationships
@@ -58,7 +60,8 @@ impl<'db, FK: HorizontalSameAsForeignKeyLike> Triangular<'db, FK> {
     ///
     /// ```rust
     /// use sql_relations::prelude::*;
-    /// let db = ParserDB::try_from(
+    /// use sqlparser::dialect::GenericDialect;
+    /// let db = ParserDB::parse(
     ///     r#"
     /// CREATE TABLE grandparent (id INT PRIMARY KEY);
     /// CREATE TABLE parent (id INT PRIMARY KEY REFERENCES grandparent(id));
@@ -66,6 +69,7 @@ impl<'db, FK: HorizontalSameAsForeignKeyLike> Triangular<'db, FK> {
     /// CREATE TABLE child (id INT PRIMARY KEY REFERENCES parent(id), sibling_id INT REFERENCES sibling(id),
     ///     FOREIGN KEY (sibling_id, id) REFERENCES sibling(id, grandparent_id));
     /// "#,
+    ///     &GenericDialect {},
     /// ).unwrap();
     /// let child_table = db.table(None, "child").unwrap();
     /// // Look for triangular relationships
@@ -87,7 +91,8 @@ impl<'db, FK: HorizontalSameAsForeignKeyLike> Triangular<'db, FK> {
     ///
     /// ```rust
     /// use sql_relations::prelude::*;
-    /// let db = ParserDB::try_from(
+    /// use sqlparser::dialect::GenericDialect;
+    /// let db = ParserDB::parse(
     ///     r#"
     /// CREATE TABLE grandparent (id INT PRIMARY KEY);
     /// CREATE TABLE parent (id INT PRIMARY KEY REFERENCES grandparent(id));
@@ -95,6 +100,7 @@ impl<'db, FK: HorizontalSameAsForeignKeyLike> Triangular<'db, FK> {
     /// CREATE TABLE child (id INT PRIMARY KEY REFERENCES parent(id), sibling_id INT REFERENCES sibling(id),
     ///     FOREIGN KEY (sibling_id, id) REFERENCES sibling(id, grandparent_id));
     /// "#,
+    ///     &GenericDialect {},
     /// ).unwrap();
     /// let child_table = db.table(None, "child").unwrap();
     /// // Look for triangular relationships
@@ -124,7 +130,8 @@ pub trait TriangularSameAsForeignKeyLike: HorizontalSameAsForeignKeyLike {
     ///
     /// ```rust
     /// use sql_relations::prelude::*;
-    /// let db = ParserDB::try_from(
+    /// use sqlparser::dialect::GenericDialect;
+    /// let db = ParserDB::parse(
     ///     r#"
     /// CREATE TABLE grandparent (id INT PRIMARY KEY);
     /// CREATE TABLE parent (id INT PRIMARY KEY REFERENCES grandparent(id));
@@ -132,6 +139,7 @@ pub trait TriangularSameAsForeignKeyLike: HorizontalSameAsForeignKeyLike {
     /// CREATE TABLE child (id INT PRIMARY KEY REFERENCES parent(id), sibling_id INT REFERENCES sibling(id),
     ///     FOREIGN KEY (sibling_id, id) REFERENCES sibling(id, grandparent_id));
     /// "#,
+    ///     &GenericDialect {},
     /// ).unwrap();
     /// let child_table = db.table(None, "child").unwrap();
     /// // Check which foreign keys are triangular same-as relationships
@@ -190,7 +198,8 @@ pub trait TriangularSameAsForeignKeyLike: HorizontalSameAsForeignKeyLike {
     /// ```rust
     /// #  fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// use sql_relations::prelude::*;
-    /// let db = ParserDB::try_from(
+    /// use sqlparser::dialect::GenericDialect;
+    /// let db = ParserDB::parse(
     ///     r#"
     /// CREATE TABLE grandparent (id INT PRIMARY KEY);
     /// CREATE TABLE parent (id INT PRIMARY KEY REFERENCES grandparent(id));
@@ -214,6 +223,7 @@ pub trait TriangularSameAsForeignKeyLike: HorizontalSameAsForeignKeyLike {
     ///     FOREIGN KEY (mandatory_triangular_parent_id, id) REFERENCES parent_hyphotenuse(id, parent_id)
     /// );
     /// "#,
+    ///     &GenericDialect {},
     /// )?;
     ///
     /// let child = db.table(None, "child").unwrap();

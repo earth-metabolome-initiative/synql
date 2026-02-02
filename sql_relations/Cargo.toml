@@ -12,6 +12,7 @@ exclude = ["Dockerfile", "target", "docker*", "*.lock", ".*"]
 
 [dependencies]
 sql-traits.workspace = true
+sqlparser.workspace = true
 
 [lints]
 workspace = true

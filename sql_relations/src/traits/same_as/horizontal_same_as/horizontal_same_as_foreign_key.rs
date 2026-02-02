@@ -21,7 +21,8 @@ pub trait HorizontalSameAsForeignKeyLike: VerticalSameAsForeignKeyLike {
     /// ```rust
     /// #  fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// use sql_relations::prelude::*;
-    /// let db = ParserDB::try_from(
+    /// use sqlparser::dialect::GenericDialect;
+    /// let db = ParserDB::parse(
     ///     r#"
     /// CREATE TABLE parent (id INT PRIMARY KEY, parent_name TEXT, UNIQUE(id, parent_name));
     /// CREATE TABLE brother (id INT PRIMARY KEY, brother_name TEXT, UNIQUE(id, brother_name));
@@ -33,6 +34,7 @@ pub trait HorizontalSameAsForeignKeyLike: VerticalSameAsForeignKeyLike {
     ///     FOREIGN KEY (brother_id, child_name) REFERENCES brother(id, brother_name)
     /// );
     /// "#,
+    ///     &GenericDialect {},
     /// )?;
     /// let child_table = db.table(None, "child").unwrap();
     /// let [extension_primary_key, parent_fk, brother_fk] =
@@ -76,7 +78,8 @@ pub trait HorizontalSameAsForeignKeyLike: VerticalSameAsForeignKeyLike {
     /// ```rust
     /// #  fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// use sql_relations::prelude::*;
-    /// let db = ParserDB::try_from(
+    /// use sqlparser::dialect::GenericDialect;
+    /// let db = ParserDB::parse(
     ///     r#"
     /// CREATE TABLE parent (id INT PRIMARY KEY, parent_name TEXT, UNIQUE(id, parent_name));
     /// CREATE TABLE brother (id INT PRIMARY KEY, brother_name TEXT, UNIQUE(id, brother_name));
@@ -88,6 +91,7 @@ pub trait HorizontalSameAsForeignKeyLike: VerticalSameAsForeignKeyLike {
     ///     FOREIGN KEY (brother_id, child_name) REFERENCES brother(id, brother_name)
     /// );
     /// "#,
+    ///     &GenericDialect {},
     /// )?;
     /// let parent_table = db.table(None, "parent").unwrap();
     /// let brother_table = db.table(None, "brother").unwrap();

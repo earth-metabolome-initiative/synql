@@ -243,9 +243,9 @@ dependencies = [
 
 [[package]]
 name = "git2"
-version = "0.20.3"
+version = "0.20.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3e2b37e2f62729cdada11f0e6b3b6fe383c69c29fc619e391223e12856af308c"
+checksum = "7b88256088d75a56f8ecfa070513a775dd9107f6530ef14919dac831af9cfe2b"
 dependencies = [
  "bitflags",
  "libc",
@@ -412,9 +412,9 @@ dependencies = [
 
 [[package]]
 name = "insta"
-version = "1.46.2"
+version = "1.46.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "38c91d64f9ad425e80200a50a0e8b8a641680b44e33ce832efe5b8bc65161b07"
+checksum = "e82db8c87c7f1ccecb34ce0c24399b8a73081427f3c7c50a5d597925356115e4"
 dependencies = [
  "console",
  "once_cell",
@@ -824,12 +824,12 @@ dependencies = [
 [[package]]
 name = "sql-traits"
 version = "0.1.0"
-source = "git+https://github.com/earth-metabolome-initiative/sql-traits?branch=main#9828f0dc5383ff681b234684238c96dcd3fa50e5"
+source = "git+https://github.com/earth-metabolome-initiative/sql-traits?branch=main#21df91f71a3a7952624c990cd20c2069fd53d9b3"
 dependencies = [
  "geometric-traits",
  "git2",
  "sql_docs",
- "sqlparser 0.60.0 (git+https://github.com/LucaCappelletti94/sqlparser-rs?branch=externalize-statements)",
+ "sqlparser 0.60.0 (git+https://github.com/LucaCappelletti94/sqlparser-rs?branch=dialect-derives)",
  "tempfile",
  "thiserror",
 ]
@@ -847,12 +847,13 @@ name = "sql_relations"
 version = "0.1.0"
 dependencies = [
  "sql-traits",
+ "sqlparser 0.60.0 (git+https://github.com/LucaCappelletti94/sqlparser-rs?branch=dialect-derives)",
 ]
 
 [[package]]
 name = "sqlparser"
 version = "0.60.0"
-source = "git+https://github.com/LucaCappelletti94/sqlparser-rs?branch=externalize-statements#cd2d7f035703cb81af1d7864c2f6f82f105f31d9"
+source = "git+https://github.com/LucaCappelletti94/sqlparser-rs?branch=dialect-derives#149effc2e959316aa96f9ddbd12bad3c3d0fd6df"
 dependencies = [
  "log",
  "recursive",
@@ -861,7 +862,7 @@ dependencies = [
 [[package]]
 name = "sqlparser"
 version = "0.60.0"
-source = "git+https://github.com/apache/datafusion-sqlparser-rs?branch=main#c8b7f7cf4281cdfff3e08e9827928662b8be8095"
+source = "git+https://github.com/apache/datafusion-sqlparser-rs?branch=main#3b9b05e6e6e18487e6e6238ff4cecb8528fc90ad"
 dependencies = [
  "log",
  "recursive",
@@ -938,7 +939,7 @@ dependencies = [
  "sql-rules",
  "sql-traits",
  "sql_relations",
- "sqlparser 0.60.0 (git+https://github.com/LucaCappelletti94/sqlparser-rs?branch=externalize-statements)",
+ "sqlparser 0.60.0 (git+https://github.com/LucaCappelletti94/sqlparser-rs?branch=dialect-derives)",
  "strum",
  "strum_macros",
  "syn",
