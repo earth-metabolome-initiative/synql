@@ -111,7 +111,7 @@ where
     /// use sqlparser::dialect::GenericDialect;
     /// use synql::prelude::*;
     ///
-    /// let db = ParserDB::parse("CREATE TABLE _my__table (id INT);", &GenericDialect {})?;
+    /// let db = ParserDB::parse::<GenericDialect>("CREATE TABLE _my__table (id INT);")?;
     /// let table = db.table(None, "_my__table").unwrap();
     /// assert_eq!(table.table_snake_name(), "my_table");
     /// # Ok(())
@@ -131,7 +131,7 @@ where
     /// use sqlparser::dialect::GenericDialect;
     /// use synql::prelude::*;
     ///
-    /// let db = ParserDB::parse("CREATE TABLE users (id INT);", &GenericDialect {})?;
+    /// let db = ParserDB::parse::<GenericDialect>("CREATE TABLE users (id INT);")?;
     /// let table = db.table(None, "users").unwrap();
     /// assert_eq!(table.table_singular_snake_name(), "user");
     /// # Ok(())
@@ -151,12 +151,11 @@ where
     /// use sql_traits::prelude::*;
     /// use sqlparser::dialect::GenericDialect;
     /// use synql::prelude::*;
-    /// let db = ParserDB::parse(
-    ///     r#"
+    /// let db = ParserDB::parse::<GenericDialect>(
+    ///     "
     ///         CREATE TABLE my_table (id INT);
     ///         CREATE TABLE MyTable (id INT);
-    /// "#,
-    ///     &GenericDialect {},
+    /// ",
     /// )?;
     /// let table1 = db.table(None, "my_table").unwrap();
     /// let table2 = db.table(None, "MyTable").unwrap();
@@ -179,7 +178,7 @@ where
     /// use sqlparser::dialect::GenericDialect;
     /// use synql::prelude::*;
     ///
-    /// let db = ParserDB::parse("CREATE TABLE box (id INT);", &GenericDialect {})?;
+    /// let db = ParserDB::parse::<GenericDialect>("CREATE TABLE box (id INT);")?;
     /// let table = db.table(None, "box").unwrap();
     /// assert_eq!(table.table_snake_ident().to_string(), "r#box");
     /// # Ok(())
@@ -204,7 +203,7 @@ where
     /// use sqlparser::dialect::GenericDialect;
     /// use synql::prelude::*;
     ///
-    /// let db = ParserDB::parse("CREATE TABLE users (id INT);", &GenericDialect {})?;
+    /// let db = ParserDB::parse::<GenericDialect>("CREATE TABLE users (id INT);")?;
     /// let table = db.table(None, "users").unwrap();
     /// assert_eq!(table.table_singular_snake_ident().to_string(), "user");
     /// # Ok(())
@@ -229,7 +228,7 @@ where
     /// use sqlparser::dialect::GenericDialect;
     /// use synql::prelude::*;
     ///
-    /// let db = ParserDB::parse("CREATE TABLE my_table (id INT);", &GenericDialect {})?;
+    /// let db = ParserDB::parse::<GenericDialect>("CREATE TABLE my_table (id INT);")?;
     /// let table = db.table(None, "my_table").unwrap();
     /// assert_eq!(table.table_camel_name(), "MyTable");
     /// # Ok(())
@@ -249,7 +248,7 @@ where
     /// use sqlparser::dialect::GenericDialect;
     /// use synql::prelude::*;
     ///
-    /// let db = ParserDB::parse("CREATE TABLE users (id INT);", &GenericDialect {})?;
+    /// let db = ParserDB::parse::<GenericDialect>("CREATE TABLE users (id INT);")?;
     /// let table = db.table(None, "users").unwrap();
     /// assert_eq!(table.table_singular_camel_name(), "User");
     /// # Ok(())
@@ -269,7 +268,7 @@ where
     /// use sql_traits::prelude::*;
     /// use sqlparser::dialect::GenericDialect;
     /// use synql::prelude::*;
-    /// let db = ParserDB::parse("CREATE TABLE struct (id INT);", &GenericDialect {})?;
+    /// let db = ParserDB::parse::<GenericDialect>("CREATE TABLE struct (id INT);")?;
     /// let table = db.table(None, "struct").unwrap();
     /// assert_eq!(table.table_camel_ident().to_string(), "Struct");
     /// # Ok(())
@@ -293,7 +292,7 @@ where
     /// use sql_traits::prelude::*;
     /// use sqlparser::dialect::GenericDialect;
     /// use synql::prelude::*;
-    /// let db = ParserDB::parse("CREATE TABLE users (id INT);", &GenericDialect {})?;
+    /// let db = ParserDB::parse::<GenericDialect>("CREATE TABLE users (id INT);")?;
     /// let table = db.table(None, "users").unwrap();
     /// assert_eq!(table.table_singular_camel_ident().to_string(), "User");
     /// # Ok(())

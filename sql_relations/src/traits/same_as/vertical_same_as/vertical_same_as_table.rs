@@ -23,8 +23,8 @@ where
     /// #  fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// use sql_relations::prelude::*;
     /// use sqlparser::dialect::GenericDialect;
-    /// let db = ParserDB::parse(
-    ///     r#"
+    /// let db = ParserDB::parse::<GenericDialect>(
+    ///     "
     /// CREATE TABLE parent (id INT PRIMARY KEY, name TEXT, UNIQUE(id, name));
     /// CREATE TABLE brother (id INT PRIMARY KEY, name TEXT, UNIQUE(id, name));
     /// CREATE TABLE child (
@@ -34,8 +34,7 @@ where
     ///     FOREIGN KEY (id, name) REFERENCES parent(id, name),
     ///     FOREIGN KEY (brother_id, name) REFERENCES brother(id, name)
     /// );
-    /// "#,
-    ///     &GenericDialect {},
+    /// ",
     /// )?;
     /// let child_table = db.table(None, "child").unwrap();
     /// let vertical_same_as_fks = child_table.vertical_same_as_foreign_keys(&db).collect::<Vec<_>>();
@@ -65,16 +64,15 @@ where
     /// #  fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// use sql_relations::prelude::*;
     /// use sqlparser::dialect::GenericDialect;
-    /// let db = ParserDB::parse(
-    ///     r#"
+    /// let db = ParserDB::parse::<GenericDialect>(
+    ///     "
     /// CREATE TABLE parent (id INT PRIMARY KEY, name TEXT, UNIQUE(id, name));
     /// CREATE TABLE child (
     ///     id INT PRIMARY KEY REFERENCES parent(id),
     ///     name TEXT,
     ///     FOREIGN KEY (id, name) REFERENCES parent(id, name)
     /// );
-    /// "#,
-    ///     &GenericDialect {},
+    /// ",
     /// )?;
     /// let child_table = db.table(None, "child").unwrap();
     /// let parent_table = db.table(None, "parent").unwrap();

@@ -6,8 +6,8 @@ use synql::prelude::*;
 
 #[test]
 fn test_mandatory_triangular_same_as() -> Result<(), Box<dyn std::error::Error>> {
-    let db = ParserDB::parse(
-        r"
+    let db = ParserDB::parse::<GenericDialect>(
+        "
     CREATE TABLE grandparent (id INT PRIMARY KEY);
     CREATE TABLE parent (id INT PRIMARY KEY REFERENCES grandparent(id));
     CREATE TABLE sibling (id INT PRIMARY KEY, grandparent_id INT REFERENCES grandparent(id), UNIQUE(id, grandparent_id));
@@ -17,7 +17,6 @@ fn test_mandatory_triangular_same_as() -> Result<(), Box<dyn std::error::Error>>
         FOREIGN KEY (sibling_id, id) REFERENCES sibling(id, grandparent_id)
     );
 ",
-        &GenericDialect {},
     )?;
     let temp_dir = tempfile::tempdir().expect("Unable to create temporary directory");
     let workspace_path = temp_dir.path().join("synql_mandatory_triangular");

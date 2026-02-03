@@ -54,7 +54,7 @@ writeln!(file, "CREATE TABLE users (id SERIAL PRIMARY KEY, name TEXT);").unwrap(
 let sql = std::fs::read_to_string(&file_path).expect("Failed to read SQL file");
 
 // Parse the SQL string
-let db = ParserDB::parse(&sql, &GenericDialect {}).expect("Failed to parse database schema");
+let db = ParserDB::parse::<GenericDialect>(&sql).expect("Failed to parse database schema");
 
 // Generate to a temporary output path
 let output_dir = tempdir().unwrap();

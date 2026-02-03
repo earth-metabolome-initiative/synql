@@ -26,8 +26,8 @@ use sql_traits::prelude::*;
 use sql_relations::prelude::*;
 use sqlparser::dialect::GenericDialect;
 
-let db = ParserDB::parse(
- r#"
+let db = ParserDB::parse::<GenericDialect>(
+ "
  CREATE TABLE parent (id INT PRIMARY KEY, name TEXT, UNIQUE(id, name));
 
  CREATE TABLE child (
@@ -36,8 +36,7 @@ let db = ParserDB::parse(
   -- This FK ensures child.name === parent.name for the same entity id
   FOREIGN KEY (id, name) REFERENCES parent(id, name)
  );
- "#,
- &GenericDialect {},
+ ",
 ).unwrap();
 
 let child_table = db.table(None, "child").unwrap();
@@ -80,8 +79,8 @@ use sql_traits::prelude::*;
 use sql_relations::prelude::*;
 use sqlparser::dialect::GenericDialect;
 
-let db = ParserDB::parse(
- r#"
+let db = ParserDB::parse::<GenericDialect>(
+ "
  CREATE TABLE brother (
   id INT PRIMARY KEY, 
   brother_name TEXT, 
@@ -95,8 +94,7 @@ let db = ParserDB::parse(
   -- This FK ensures child.child_name === brother.brother_name when linked
   FOREIGN KEY (brother_id, child_name) REFERENCES brother(id, brother_name)
  );
- "#,
- &GenericDialect {},
+ ",
 ).unwrap();
 
 let child_table = db.table(None, "child").unwrap();
@@ -146,8 +144,8 @@ use sql_traits::prelude::*;
 use sql_relations::prelude::*;
 use sqlparser::dialect::GenericDialect;
 
-let db = ParserDB::parse(
- r#"
+let db = ParserDB::parse::<GenericDialect>(
+ "
  CREATE TABLE grandparent (id INT PRIMARY KEY);
  CREATE TABLE parent (id INT PRIMARY KEY REFERENCES grandparent(id));
 
@@ -167,8 +165,7 @@ let db = ParserDB::parse(
   -- points to the SAME 'grandparent' as this 'child'.
   FOREIGN KEY (sibling_id, id) REFERENCES sibling(id, grandparent_id)
  );
- "#,
- &GenericDialect {},
+ ",
 ).unwrap();
 
 let child_table = db.table(None, "child").unwrap();

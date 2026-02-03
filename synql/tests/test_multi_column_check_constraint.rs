@@ -7,7 +7,7 @@ use synql::prelude::*;
 
 #[test]
 fn test_multi_column_check_constraint() -> Result<(), Box<dyn std::error::Error>> {
-    let db = ParserDB::parse(
+    let db = ParserDB::parse::<GenericDialect>(
         "
     CREATE TABLE test_table (
         id INT PRIMARY KEY,
@@ -17,7 +17,6 @@ fn test_multi_column_check_constraint() -> Result<(), Box<dyn std::error::Error>
         CHECK (value1 < value2)
     );
 ",
-        &GenericDialect {},
     )?;
 
     let temp_dir = tempfile::tempdir().expect("Unable to create temporary directory");

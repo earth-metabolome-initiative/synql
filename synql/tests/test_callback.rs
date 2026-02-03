@@ -7,7 +7,7 @@ use synql::prelude::*;
 
 #[test]
 fn test_callback_generation() -> Result<(), Box<dyn std::error::Error>> {
-    let db = ParserDB::parse("CREATE TABLE users (id SERIAL PRIMARY KEY);", &GenericDialect {})?;
+    let db = ParserDB::parse::<GenericDialect>("CREATE TABLE users (id SERIAL PRIMARY KEY);")?;
     let temp_dir = tempfile::tempdir()?;
     let workspace_path = temp_dir.path().join("synql_workspace");
 

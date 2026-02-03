@@ -8,7 +8,7 @@ use synql::prelude::*;
 
 #[test]
 fn test_ancestral_table_list_default_decorator() -> Result<(), Box<dyn std::error::Error>> {
-    let db = ParserDB::parse(
+    let db = ParserDB::parse::<GenericDialect>(
         "
     CREATE TABLE valid_list (name TEXT PRIMARY KEY);
     CREATE TABLE root (id INT PRIMARY KEY, list_name TEXT, FOREIGN KEY(list_name) REFERENCES valid_list(name));
@@ -19,7 +19,6 @@ fn test_ancestral_table_list_default_decorator() -> Result<(), Box<dyn std::erro
     CREATE TABLE root_no_list (id INT PRIMARY KEY);
     CREATE TABLE child_no_list (id INT PRIMARY KEY REFERENCES root_no_list(id));
 ",
-&GenericDialect {}
     )?;
 
     let temp_dir = tempfile::tempdir().expect("Unable to create temporary directory");

@@ -25,8 +25,8 @@ where
     /// use sql_relations::prelude::*;
     /// use sqlparser::dialect::GenericDialect;
     ///
-    /// let db = ParserDB::parse(
-    ///     r#"
+    /// let db = ParserDB::parse::<GenericDialect>(
+    ///     "
     /// CREATE TABLE right (id SERIAL PRIMARY KEY, name TEXT, age INT, UNIQUE(id, name), UNIQUE(id, age));
     /// CREATE TABLE left (
     ///     id SERIAL PRIMARY KEY,
@@ -36,8 +36,7 @@ where
     ///     FOREIGN KEY (right_id, name) REFERENCES right(id, name),
     ///     FOREIGN KEY (right_id, age) REFERENCES right(id, age)
     /// );
-    ///   "#,
-    ///     &GenericDialect {},
+    ///   ",
     /// )?;
     /// let left_table = db.table(None, "left").unwrap();
     /// let right_id_column =
@@ -72,8 +71,8 @@ where
     /// use sql_relations::prelude::*;
     /// use sqlparser::dialect::GenericDialect;
     ///
-    /// let db = ParserDB::parse(
-    ///     r#"
+    /// let db = ParserDB::parse::<GenericDialect>(
+    ///     "
     /// CREATE TABLE right (id SERIAL PRIMARY KEY, name TEXT, age INT, UNIQUE(id, name), UNIQUE(id, age));
     /// CREATE TABLE left (
     ///     id SERIAL PRIMARY KEY,
@@ -83,8 +82,7 @@ where
     ///     FOREIGN KEY (right_id, name) REFERENCES right(id, name),
     ///     FOREIGN KEY (right_id, age) REFERENCES right(id, age)
     /// );
-    ///   "#,
-    ///     &GenericDialect {},
+    ///   ",
     /// )?;
     /// let left_table = db.table(None, "left").unwrap();
     /// let name_column = left_table.column("name", &db).expect("Column 'name' should exist");

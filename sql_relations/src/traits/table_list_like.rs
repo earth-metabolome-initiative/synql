@@ -21,8 +21,8 @@ pub trait TableListLike: TableLike {
     /// use sql_relations::prelude::*;
     /// use sqlparser::dialect::GenericDialect;
     ///
-    /// let db = ParserDB::parse(
-    ///     r#"
+    /// let db = ParserDB::parse::<GenericDialect>(
+    ///     "
     /// CREATE TABLE valid_list (name TEXT PRIMARY KEY);
     /// CREATE TABLE root (id INT PRIMARY KEY, list_name TEXT, FOREIGN KEY(list_name) REFERENCES valid_list(name));
     /// CREATE TABLE not_root (id INT PRIMARY KEY, list_name TEXT, FOREIGN KEY(list_name) REFERENCES valid_list(name));
@@ -36,8 +36,7 @@ pub trait TableListLike: TableLike {
     ///
     /// CREATE TABLE orphan (name TEXT PRIMARY KEY);
     /// CREATE TABLE not_root2 (id INT PRIMARY KEY, list_name TEXT, FOREIGN KEY(list_name) REFERENCES orphan(name));
-    /// "#,
-    ///     &GenericDialect {},
+    /// ",
     /// )?;
     ///
     /// let valid_list = db.table(None, "valid_list").unwrap();
@@ -86,13 +85,12 @@ pub trait TableListLike: TableLike {
     /// use sql_relations::prelude::*;
     /// use sqlparser::dialect::GenericDialect;
     ///
-    /// let db = ParserDB::parse(
-    ///     r#"
+    /// let db = ParserDB::parse::<GenericDialect>(
+    ///     "
     /// CREATE TABLE valid_list (name TEXT PRIMARY KEY);
     /// CREATE TABLE root (id INT PRIMARY KEY, list_name TEXT, FOREIGN KEY(list_name) REFERENCES valid_list(name));
     /// CREATE TABLE child_of_root (id INT PRIMARY KEY REFERENCES root(id));
-    /// "#,
-    ///     &GenericDialect {},
+    /// ",
     /// )?;
     ///
     /// let root_table = db.table(None, "root").unwrap();

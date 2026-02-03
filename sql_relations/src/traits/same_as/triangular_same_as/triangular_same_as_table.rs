@@ -23,8 +23,8 @@ where
     /// #  fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// use sql_relations::prelude::*;
     /// use sqlparser::dialect::GenericDialect;
-    /// let db = ParserDB::parse(
-    ///     r#"
+    /// let db = ParserDB::parse::<GenericDialect>(
+    ///     "
     /// CREATE TABLE grandparent (id INT PRIMARY KEY);
     /// CREATE TABLE parent (id INT PRIMARY KEY REFERENCES grandparent(id));
     /// CREATE TABLE grandparent_hyphotenuse (
@@ -37,8 +37,7 @@ where
     ///     triangular_id INT REFERENCES grandparent_hyphotenuse(id),
     ///     FOREIGN KEY (triangular_id, id) REFERENCES grandparent_hyphotenuse(id, grandparent_id)
     /// );
-    /// "#,
-    ///     &GenericDialect {},
+    /// ",
     /// )?;
     /// let child = db.table(None, "child").unwrap();
     /// let triangular_fks = child.triangular_same_as_foreign_keys(&db).collect::<Vec<_>>();

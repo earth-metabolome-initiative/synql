@@ -8,8 +8,8 @@ use synql::prelude::*;
 
 #[test]
 fn test_dag_sink_generation() -> Result<(), Box<dyn std::error::Error>> {
-    let db = ParserDB::parse(
-        r"
+    let db = ParserDB::parse::<GenericDialect>(
+        "
 		CREATE TABLE users (
 		    id SERIAL PRIMARY KEY,
 		    name TEXT NOT NULL
@@ -28,7 +28,6 @@ fn test_dag_sink_generation() -> Result<(), Box<dyn std::error::Error>> {
             data TEXT
         );
 ",
-        &GenericDialect {},
     )?;
     let temp_dir = tempfile::tempdir().expect("Unable to create temporary directory");
     let workspace_path = temp_dir.path().join("synql_dag_workspace");

@@ -28,8 +28,8 @@ where
     /// use sql_relations::prelude::*;
     /// use sqlparser::dialect::GenericDialect;
     ///
-    /// let db = ParserDB::parse(
-    ///     r#"
+    /// let db = ParserDB::parse::<GenericDialect>(
+    ///     "
     ///     CREATE TABLE parent (id INT PRIMARY KEY, name TEXT, age SMALLINT, UNIQUE(id, name), UNIQUE(id, age));
     ///     CREATE TABLE child (
     ///         id INT PRIMARY KEY REFERENCES parent(id),
@@ -38,8 +38,7 @@ where
     ///         FOREIGN KEY (id, name) REFERENCES parent(id, name),
     ///         FOREIGN KEY (id, age) REFERENCES parent(id, age)
     ///     );
-    ///   "#,
-    ///     &GenericDialect {},
+    ///   ",
     /// )?;
     /// let child_table = db.table(None, "child").unwrap();
     /// let name_column = child_table.column("name", &db).expect("Column 'name' should exist");
@@ -73,8 +72,8 @@ where
     /// use sql_relations::prelude::*;
     /// use sqlparser::dialect::GenericDialect;
     ///
-    /// let db = ParserDB::parse(
-    ///     r#"
+    /// let db = ParserDB::parse::<GenericDialect>(
+    ///     "
     ///     CREATE TABLE parent (id INT PRIMARY KEY, name TEXT, age SMALLINT, UNIQUE(id, name), UNIQUE(id, age));
     ///     CREATE TABLE child (
     ///         id INT PRIMARY KEY REFERENCES parent(id),
@@ -83,8 +82,7 @@ where
     ///         FOREIGN KEY (id, name) REFERENCES parent(id, name),
     ///         FOREIGN KEY (id, age) REFERENCES parent(id, age)
     ///     );
-    ///   "#,
-    ///     &GenericDialect {},
+    ///   ",
     /// )?;
     /// let child_table = db.table(None, "child").unwrap();
     /// let name_column = child_table.column("name", &db).expect("Column 'name' should exist");
@@ -120,8 +118,8 @@ where
     /// use sql_relations::prelude::*;
     /// use sqlparser::dialect::GenericDialect;
     ///
-    /// let db = ParserDB::parse(
-    ///     r#"
+    /// let db = ParserDB::parse::<GenericDialect>(
+    ///     "
     ///     CREATE TABLE grandparent (id INT PRIMARY KEY, name TEXT, UNIQUE(id, name));
     ///     CREATE TABLE parent (
     ///         id INT PRIMARY KEY REFERENCES grandparent(id),
@@ -133,8 +131,7 @@ where
     ///         child_name TEXT,
     ///         FOREIGN KEY (id, child_name) REFERENCES grandparent(id, name)
     ///     );
-    ///   "#,
-    ///     &GenericDialect {},
+    ///   ",
     /// )?;
     /// let child_table = db.table(None, "child").unwrap();
     /// let child_name_column =
@@ -179,8 +176,8 @@ where
     /// use sql_relations::prelude::*;
     /// use sqlparser::dialect::GenericDialect;
     ///
-    /// let db = ParserDB::parse(
-    ///     r#"
+    /// let db = ParserDB::parse::<GenericDialect>(
+    ///     "
     ///     CREATE TABLE grandparent (id INT PRIMARY KEY, name TEXT, UNIQUE(id, name));
     ///     CREATE TABLE parent (
     ///         id INT PRIMARY KEY REFERENCES grandparent(id),
@@ -192,8 +189,7 @@ where
     ///         child_name TEXT,
     ///         FOREIGN KEY (id, child_name) REFERENCES grandparent(id, name)
     ///     );
-    ///   "#,
-    ///     &GenericDialect {},
+    ///   ",
     /// )?;
     /// let child_table = db.table(None, "child").unwrap();
     /// let child_name_column =

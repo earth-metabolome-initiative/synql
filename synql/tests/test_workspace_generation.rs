@@ -13,8 +13,8 @@ use synql::prelude::*;
 
 #[test]
 fn test_workspace_generation() -> Result<(), Box<dyn std::error::Error>> {
-    let db = ParserDB::parse(
-        r"
+    let db = ParserDB::parse::<GenericDialect>(
+        "
 		CREATE TABLE users (
 		    id SERIAL PRIMARY KEY,
 		    name TEXT NOT NULL CHECK (name <> ''),
@@ -35,7 +35,6 @@ fn test_workspace_generation() -> Result<(), Box<dyn std::error::Error>> {
             extra_info TEXT
         );
 ",
-        &GenericDialect {},
     )?;
     let temp_dir = tempfile::tempdir().expect("Unable to create temporary directory");
     let workspace_path = temp_dir.path().join("synql_workspace");

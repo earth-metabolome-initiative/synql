@@ -34,7 +34,7 @@ pub trait ColumnSynLike: ColumnLike {
     /// use sql_traits::prelude::*;
     /// use sqlparser::dialect::GenericDialect;
     /// use synql::prelude::*;
-    /// let db = ParserDB::parse("CREATE TABLE my_table (my_column INT);", &GenericDialect {})?;
+    /// let db = ParserDB::parse::<GenericDialect>("CREATE TABLE my_table (my_column INT);")?;
     /// let table = db.table(None, "my_table").unwrap();
     /// let column = table.column("my_column", &db).unwrap();
     /// assert_eq!(column.column_acronym(), "MC");
@@ -68,7 +68,7 @@ pub trait ColumnSynLike: ColumnLike {
     /// use sqlparser::dialect::GenericDialect;
     /// use synql::prelude::*;
     ///
-    /// let db = ParserDB::parse("CREATE TABLE my_table (_my__column INT);", &GenericDialect {})?;
+    /// let db = ParserDB::parse::<GenericDialect>("CREATE TABLE my_table (_my__column INT);")?;
     /// let table = db.table(None, "my_table").unwrap();
     /// let column = table.column("_my__column", &db).unwrap();
     /// assert_eq!(column.column_snake_name(), "my_column");
@@ -88,10 +88,8 @@ pub trait ColumnSynLike: ColumnLike {
     /// use sql_traits::prelude::*;
     /// use sqlparser::dialect::GenericDialect;
     /// use synql::prelude::*;
-    /// let db = ParserDB::parse(
-    ///     "CREATE TABLE my_table (my_column INT, MyColumn INT);",
-    ///     &GenericDialect {},
-    /// )?;
+    /// let db =
+    ///     ParserDB::parse::<GenericDialect>("CREATE TABLE my_table (my_column INT, MyColumn INT);")?;
     /// let table = db.table(None, "my_table").unwrap();
     /// let column1 = table.column("my_column", &db).unwrap();
     /// let column2 = table.column("MyColumn", &db).unwrap();
@@ -114,7 +112,7 @@ pub trait ColumnSynLike: ColumnLike {
     /// use sqlparser::dialect::GenericDialect;
     /// use synql::prelude::*;
     ///
-    /// let db = ParserDB::parse("CREATE TABLE my_table (type INT);", &GenericDialect {})?;
+    /// let db = ParserDB::parse::<GenericDialect>("CREATE TABLE my_table (type INT);")?;
     /// let table = db.table(None, "my_table").unwrap();
     /// let column = table.column("type", &db).unwrap();
     /// assert_eq!(column.column_snake_ident().to_string(), "r#type");
@@ -140,7 +138,7 @@ pub trait ColumnSynLike: ColumnLike {
     /// use sqlparser::dialect::GenericDialect;
     /// use synql::prelude::*;
     ///
-    /// let db = ParserDB::parse("CREATE TABLE my_table (my_column INT);", &GenericDialect {})?;
+    /// let db = ParserDB::parse::<GenericDialect>("CREATE TABLE my_table (my_column INT);")?;
     /// let table = db.table(None, "my_table").unwrap();
     /// let column = table.column("my_column", &db).unwrap();
     /// assert_eq!(column.column_camel_name(), "MyColumn");
@@ -160,7 +158,7 @@ pub trait ColumnSynLike: ColumnLike {
     /// use sql_traits::prelude::*;
     /// use sqlparser::dialect::GenericDialect;
     /// use synql::prelude::*;
-    /// let db = ParserDB::parse("CREATE TABLE my_table (struct INT);", &GenericDialect {})?;
+    /// let db = ParserDB::parse::<GenericDialect>("CREATE TABLE my_table (struct INT);")?;
     /// let table = db.table(None, "my_table").unwrap();
     /// let column = table.column("struct", &db).unwrap();
     /// assert_eq!(column.column_camel_ident().to_string(), "Struct");

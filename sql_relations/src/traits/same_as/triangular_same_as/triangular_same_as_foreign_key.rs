@@ -30,15 +30,15 @@ impl<'db, FK: HorizontalSameAsForeignKeyLike> Triangular<'db, FK> {
     /// ```rust
     /// use sql_relations::prelude::*;
     /// use sqlparser::dialect::GenericDialect;
-    /// let db = ParserDB::parse(
-    ///     r#"
+    /// let db = ParserDB::parse::<GenericDialect>(
+    ///     "
     /// CREATE TABLE grandparent (id INT PRIMARY KEY);
     /// CREATE TABLE parent (id INT PRIMARY KEY REFERENCES grandparent(id));
     /// CREATE TABLE sibling (id INT PRIMARY KEY, grandparent_id INT REFERENCES grandparent(id), UNIQUE(id, grandparent_id));
     /// CREATE TABLE child (id INT PRIMARY KEY REFERENCES parent(id), sibling_id INT REFERENCES sibling(id),
     ///     FOREIGN KEY (sibling_id, id) REFERENCES sibling(id, grandparent_id));
-    /// "#,
-    ///     &GenericDialect {},
+    /// ",
+    ///     
     /// ).unwrap();
     /// let child_table = db.table(None, "child").unwrap();
     /// // Look for triangular relationships
@@ -61,15 +61,14 @@ impl<'db, FK: HorizontalSameAsForeignKeyLike> Triangular<'db, FK> {
     /// ```rust
     /// use sql_relations::prelude::*;
     /// use sqlparser::dialect::GenericDialect;
-    /// let db = ParserDB::parse(
-    ///     r#"
+    /// let db = ParserDB::parse::<GenericDialect>(
+    ///     "
     /// CREATE TABLE grandparent (id INT PRIMARY KEY);
     /// CREATE TABLE parent (id INT PRIMARY KEY REFERENCES grandparent(id));
     /// CREATE TABLE sibling (id INT PRIMARY KEY, grandparent_id INT REFERENCES grandparent(id), UNIQUE(id, grandparent_id));
     /// CREATE TABLE child (id INT PRIMARY KEY REFERENCES parent(id), sibling_id INT REFERENCES sibling(id),
     ///     FOREIGN KEY (sibling_id, id) REFERENCES sibling(id, grandparent_id));
-    /// "#,
-    ///     &GenericDialect {},
+    /// ",
     /// ).unwrap();
     /// let child_table = db.table(None, "child").unwrap();
     /// // Look for triangular relationships
@@ -92,15 +91,14 @@ impl<'db, FK: HorizontalSameAsForeignKeyLike> Triangular<'db, FK> {
     /// ```rust
     /// use sql_relations::prelude::*;
     /// use sqlparser::dialect::GenericDialect;
-    /// let db = ParserDB::parse(
-    ///     r#"
+    /// let db = ParserDB::parse::<GenericDialect>(
+    ///     "
     /// CREATE TABLE grandparent (id INT PRIMARY KEY);
     /// CREATE TABLE parent (id INT PRIMARY KEY REFERENCES grandparent(id));
     /// CREATE TABLE sibling (id INT PRIMARY KEY, grandparent_id INT REFERENCES grandparent(id), UNIQUE(id, grandparent_id));
     /// CREATE TABLE child (id INT PRIMARY KEY REFERENCES parent(id), sibling_id INT REFERENCES sibling(id),
     ///     FOREIGN KEY (sibling_id, id) REFERENCES sibling(id, grandparent_id));
-    /// "#,
-    ///     &GenericDialect {},
+    /// ",
     /// ).unwrap();
     /// let child_table = db.table(None, "child").unwrap();
     /// // Look for triangular relationships
@@ -131,15 +129,14 @@ pub trait TriangularSameAsForeignKeyLike: HorizontalSameAsForeignKeyLike {
     /// ```rust
     /// use sql_relations::prelude::*;
     /// use sqlparser::dialect::GenericDialect;
-    /// let db = ParserDB::parse(
-    ///     r#"
+    /// let db = ParserDB::parse::<GenericDialect>(
+    ///     "
     /// CREATE TABLE grandparent (id INT PRIMARY KEY);
     /// CREATE TABLE parent (id INT PRIMARY KEY REFERENCES grandparent(id));
     /// CREATE TABLE sibling (id INT PRIMARY KEY, grandparent_id INT REFERENCES grandparent(id), UNIQUE(id, grandparent_id));
     /// CREATE TABLE child (id INT PRIMARY KEY REFERENCES parent(id), sibling_id INT REFERENCES sibling(id),
     ///     FOREIGN KEY (sibling_id, id) REFERENCES sibling(id, grandparent_id));
-    /// "#,
-    ///     &GenericDialect {},
+    /// ",
     /// ).unwrap();
     /// let child_table = db.table(None, "child").unwrap();
     /// // Check which foreign keys are triangular same-as relationships
@@ -199,8 +196,8 @@ pub trait TriangularSameAsForeignKeyLike: HorizontalSameAsForeignKeyLike {
     /// #  fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// use sql_relations::prelude::*;
     /// use sqlparser::dialect::GenericDialect;
-    /// let db = ParserDB::parse(
-    ///     r#"
+    /// let db = ParserDB::parse::<GenericDialect>(
+    ///     "
     /// CREATE TABLE grandparent (id INT PRIMARY KEY);
     /// CREATE TABLE parent (id INT PRIMARY KEY REFERENCES grandparent(id));
     /// CREATE TABLE grandparent_hyphotenuse (
@@ -222,8 +219,7 @@ pub trait TriangularSameAsForeignKeyLike: HorizontalSameAsForeignKeyLike {
     ///     FOREIGN KEY (mandatory_triangular_grandparent_id, id) REFERENCES grandparent_hyphotenuse(id, grandparent_id),
     ///     FOREIGN KEY (mandatory_triangular_parent_id, id) REFERENCES parent_hyphotenuse(id, parent_id)
     /// );
-    /// "#,
-    ///     &GenericDialect {},
+    /// ",
     /// )?;
     ///
     /// let child = db.table(None, "child").unwrap();
