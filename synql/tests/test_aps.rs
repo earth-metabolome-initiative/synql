@@ -6,6 +6,7 @@
 
 use std::process::Command;
 
+use sqlparser::dialect::PostgreSqlDialect;
 use sql_traits::prelude::*;
 use synql::prelude::*;
 
@@ -16,7 +17,7 @@ fn test_aps() -> Result<(), Box<dyn std::error::Error>> {
     // let temp_dir = tempfile::tempdir()?;
     let temp_dir = "../../emi_local";
     let workspace_path = std::path::Path::new(temp_dir);
-    let db: ParserDB = ParserDB::from_git_url(
+    let db: ParserDB = ParserDB::from_git_url::<PostgreSqlDialect>(
         "https://github.com/earth-metabolome-initiative/asset-procedure-schema.git",
     )?;
 
