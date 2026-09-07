@@ -214,10 +214,11 @@ where
     {
         let mut reachable_set: HashSet<&'db <Self::DB as DatabaseLike>::Column> =
             self.vertical_same_as_reachable_set(database).into_iter().collect();
-        // The frontier contains the set of columns which so far can only be reached
-        // from the current column. Once a column in the frontier is found to be
-        // reachable from another column in the reachable set, it is marked as true
-        // and will not be used to expand the reachable set anymore.
+        // The frontier contains the set of columns which so far can only be
+        // reached from the current column. Once a column in the
+        // frontier is found to be reachable from another column in the
+        // reachable set, it is marked as true and will not be used to
+        // expand the reachable set anymore.
         let mut frontier: HashMap<&'db <Self::DB as DatabaseLike>::Column, bool> =
             self.vertical_same_as_columns(database).into_iter().map(|c| (c, false)).collect();
         let table: &'db <Self::DB as DatabaseLike>::Table = self.table(database);
@@ -230,7 +231,8 @@ where
             for ancestor in vertical_extension_tables.iter().copied() {
                 for ancestor_column in ancestor.columns(database) {
                     let ancestor_column: &'db <Self::DB as DatabaseLike>::Column = ancestor_column;
-                    // If the ancestor node is already in the reachable set, skip it.
+                    // If the ancestor node is already in the reachable set,
+                    // skip it.
                     if reachable_set.contains(ancestor_column) {
                         continue;
                     }
@@ -241,8 +243,9 @@ where
                             .into_iter()
                             .collect();
 
-                    // We update the frontier to mark as true columns which we have now discovered
-                    // can be reached also from this ancestor column.
+                    // We update the frontier to mark as true columns which we
+                    // have now discovered can be reached
+                    // also from this ancestor column.
                     for (frontier_column, is_reachable) in &mut frontier {
                         if !*is_reachable && ancestor_reachable_set.contains(frontier_column) {
                             *is_reachable = true;
@@ -250,10 +253,12 @@ where
                         }
                     }
 
-                    // If the ancestor reachable set intersects with the current reachable
-                    // set, then the ancestor column is inferred to be vertically same-as
-                    // the current column. We then merge the ancestor reachable set into
-                    // the current reachable set, and add the ancestor column to the
+                    // If the ancestor reachable set intersects with the current
+                    // reachable set, then the ancestor
+                    // column is inferred to be vertically same-as
+                    // the current column. We then merge the ancestor reachable
+                    // set into the current reachable set,
+                    // and add the ancestor column to the
                     // frontier.
                     if !reachable_set.is_disjoint(&ancestor_reachable_set) {
                         reachable_set.insert(ancestor_column);
@@ -265,9 +270,9 @@ where
             }
         }
 
-        // We then consider as vertically same-as only those columns in the frontier
-        // which are still marked as false, meaning they could not be reached
-        // from any other column in the reachable set.
+        // We then consider as vertically same-as only those columns in the
+        // frontier which are still marked as false, meaning they could
+        // not be reached from any other column in the reachable set.
         let mut vertical_same_as_columns: Vec<
             &'db <<Self as ColumnLike>::DB as DatabaseLike>::Column,
         > = frontier

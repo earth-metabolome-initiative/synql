@@ -392,8 +392,8 @@ where
     fn unique_indices_macros(&self, database: &Self::DB) -> Vec<proc_macro2::TokenStream> {
         let mut indices = Vec::new();
         for unique_index in self.unique_indices(database) {
-            // Primary keys already automatically have unique constraints macro generated,
-            // so we skip them here.
+            // Primary keys already automatically have unique constraints macro
+            // generated, so we skip them here.
             if unique_index.is_primary_key(database) {
                 continue;
             }

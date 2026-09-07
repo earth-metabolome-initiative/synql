@@ -53,8 +53,8 @@ fn test_ancestral_table_list_default_decorator() -> Result<(), Box<dyn std::erro
 
     // Case 2: Child No List
     // The table name is `child_no_list`. The snake case is `child_no_list`.
-    // The crate name combines workspace name "synql-table-list" with table name.
-    // So "synql-table-list-child_no_list".
+    // The crate name combines workspace name "synql-table-list" with table
+    // name. So "synql-table-list-child_no_list".
     let child_no_list_crate_name = "synql-table-list-child_no_list";
     let child_no_list_rs_path =
         workspace_path.join(child_no_list_crate_name).join("src").join("lib.rs");

@@ -35,14 +35,14 @@ edition.workspace = true
         writeln!(buffer, "diesel-builders.workspace = true")?;
         writeln!(buffer, "diesel.workspace = true")?;
 
-        // If the table has check constraints, it will require the `validation_errors`
-        // crate.
+        // If the table has check constraints, it will require the
+        // `validation_errors` crate.
         if table.has_non_tautological_check_constraints_in_hierarchy(self.database) {
             writeln!(buffer, "validation-errors.workspace = true")?;
         }
 
-        // The crate might have external dependencies relative to the types it uses
-        // and the function employed in its check constraints.
+        // The crate might have external dependencies relative to the types it
+        // uses and the function employed in its check constraints.
         for external_crate in table.external_crates(self.database, workspace) {
             let crate_name = external_crate.name();
             if crate_name == "serde"

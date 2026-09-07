@@ -6,8 +6,8 @@
 
 use std::process::Command;
 
-use sqlparser::dialect::PostgreSqlDialect;
 use sql_traits::prelude::*;
+use sqlparser::dialect::PostgreSqlDialect;
 use synql::prelude::*;
 
 #[test]

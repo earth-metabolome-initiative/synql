@@ -336,12 +336,14 @@ pub trait TriangularSameAsForeignKeyLike: HorizontalSameAsForeignKeyLike {
         let candidate_referenced_columns = self.referenced_columns(database).collect::<Vec<_>>();
 
         // For each foreign key in the host table, we check whether it contains
-        // references to the specific ID contained in the local & foreign columns
-        // of the current constraint, which implicitly also checks whether the
-        // foreign key points to the same foreign table as the current constraint.
-        // Next, we check whether the foreign key's foreign columns contain
-        // any of the columns pointing to ancestors of the host table described
-        // in constraints to ancestors of the host table which we determined above.
+        // references to the specific ID contained in the local & foreign
+        // columns of the current constraint, which implicitly also
+        // checks whether the foreign key points to the same foreign
+        // table as the current constraint. Next, we check whether the
+        // foreign key's foreign columns contain any of the columns
+        // pointing to ancestors of the host table described
+        // in constraints to ancestors of the host table which we determined
+        // above.
         for horizontal_same_as in host_table.horizontal_same_as_foreign_keys(database) {
             let horizontal_same_as: &Self = horizontal_same_as.borrow();
             // We retrieve the local columns of the foreign key we are checking.

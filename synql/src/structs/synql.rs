@@ -287,10 +287,11 @@ impl<'db, DB: SynQLDatabaseLike> SynQL<'db, DB> {
             .into();
 
         if self.clear_existing {
-            // Clear up any directory or file that may already exist at the workspace path
+            // Clear up any directory or file that may already exist at the
+            // workspace path
             if workspace.path().exists() {
-                // We remove all contents of the directory, but we do not remove the directory
-                // itself
+                // We remove all contents of the directory, but we do not remove
+                // the directory itself
                 for entry in std::fs::read_dir(workspace.path())? {
                     let entry = entry?;
                     let path = entry.path();
@@ -357,7 +358,8 @@ impl<'db, DB: SynQLDatabaseLike> SynQL<'db, DB> {
                     workspace.path().join(workspace.crate_base_path()).join(&sink_crate_name);
                 std::fs::create_dir_all(&sink_crate_path)?;
 
-                // We identify the tables which are part of the DAG rooted at `root_table`.
+                // We identify the tables which are part of the DAG rooted at
+                // `root_table`.
                 let dag_tables = || {
                     self.database.tables().filter(|table| {
                         table.table_name() == root_table.table_name()

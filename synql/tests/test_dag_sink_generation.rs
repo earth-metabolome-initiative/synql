@@ -56,8 +56,8 @@ fn test_dag_sink_generation() -> Result<(), Box<dyn std::error::Error>> {
         sink_comments_toml.contains("synql-dag-workspace-extended_comments.workspace = true"),
         "sink_comments should depend on extended_comments"
     );
-    // Users is an ancestor, not a descendant, so it might not be included if logic
-    // is strictly "depends_on root"
+    // Users is an ancestor, not a descendant, so it might not be included if
+    // logic is strictly "depends_on root"
     assert!(
         !sink_comments_toml.contains("synql-dag-workspace-users.workspace = true"),
         "sink_comments should NOT depend on users (ancestor)"
